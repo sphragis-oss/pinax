@@ -1,0 +1,27 @@
+name: Feature request
+description: A widget, pane option, or capability pinax should have
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What you are trying to build
+      description: The dashboard or pane you want, in plain words. A sketch of the profile.json you wish worked is ideal.
+    validations:
+      required: true
+  - type: textarea
+    id: workaround
+    attributes:
+      label: What you tried
+      description: Existing widgets, custom widgets.js, or workarounds you attempted.
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Where should this live?
+      options:
+        - New built-in widget or pane option (domain-agnostic)
+        - Core capability (trust, sharing, layout, API)
+        - Probably a custom widget / pinax-profiles example
+        - Not sure
+    validations:
+      required: true

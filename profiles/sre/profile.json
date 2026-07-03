@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "name": "SRE Command Center",
+  "layout": "grid",
+  "panes": [
+    {
+      "type": "command-buttons",
+      "frame": false,
+      "width": "full",
+      "buttons": [
+        { "label": "Daily Note",   "command": "claude /daily-note",            "icon": "calendar",    "terminal": true },
+        { "label": "Morning Scan", "command": "claude /morning-trend-scan",    "icon": "telescope",   "terminal": true },
+        { "label": "GH Trending",  "command": "claude /github-trending-radar", "icon": "trending-up", "terminal": true },
+        { "label": "Vault Search", "command": "claude /vault-search",          "icon": "search" },
+        { "label": "Vault Recall", "command": "claude /vault-recall",          "icon": "brain" },
+        { "label": "Graphify",     "command": "claude /graphify",              "icon": "share-2" }
+      ]
+    },
+    {
+      "type": "custom",
+      "widget": "sre.scan",
+      "title": "⬢ CNCF / PLATFORM RADAR",
+      "width": "half",
+      "config": { "folder": "raw/scans", "rowFilter": true }
+    },
+    {
+      "type": "custom",
+      "widget": "sre.scan",
+      "title": "★ GITHUB TRENDING (AI + CNCF, 7d)",
+      "width": "half",
+      "config": { "folder": "raw/scans/github-trending", "tableControls": true }
+    },
+    {
+      "type": "custom",
+      "widget": "sre.tasks",
+      "title": "▤ OPEN TASKS",
+      "width": "half",
+      "config": { "folders": ["raw/daily", "projects"], "exclude": ["projects/personal/claude-os"] }
+    },
+    {
+      "type": "custom",
+      "widget": "sre.schedule",
+      "title": "⏱ SCHEDULED RADARS",
+      "width": "half"
+    },
+    {
+      "type": "custom",
+      "widget": "sre.jira",
+      "title": "◆ JIRA, MY OPEN TICKETS",
+      "width": "full",
+      "config": { "folder": "raw/scans/jira" }
+    },
+    {
+      "type": "custom",
+      "widget": "sre.clotributor",
+      "title": "✿ CNCF FIRST ISSUES (Go, no linked PRs)",
+      "width": "full",
+      "config": { "folder": "raw/scans/clotributor" }
+    },
+    {
+      "type": "custom",
+      "widget": "sre.releases",
+      "title": "⚡ CLAUDE CODE RELEASES (last 3)",
+      "width": "full",
+      "config": { "folder": "raw/scans/claude-code-releases" }
+    },
+    {
+      "type": "custom",
+      "widget": "sre.projects",
+      "title": "▣ PROJECTS",
+      "width": "full",
+      "config": { "folder": "projects" }
+    }
+  ]
+}

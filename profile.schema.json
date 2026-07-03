@@ -1,0 +1,435 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/sphragis-oss/pinax/blob/main/profile.schema.json",
+  "title": "Pinax profile",
+  "description": "A Pinax profile: the layout and panes of one dashboard. layout 'grid' requires 'panes'; layout 'tabs' requires 'tabs'.",
+  "type": "object",
+  "required": ["name", "layout"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "const": 1, "description": "Profile schema version. Always 1 for now; omitting it means 1." },
+    "name": { "type": "string", "minLength": 1, "description": "Display name of the dashboard" },
+    "layout": { "enum": ["grid", "tabs"], "description": "grid: one page of panes. tabs: multiple named pages" },
+    "panes": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/pane" } },
+    "tabs": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/tab" } }
+  },
+  "allOf": [
+    { "if": { "properties": { "layout": { "const": "grid" } } }, "then": { "required": ["panes"] } },
+    { "if": { "properties": { "layout": { "const": "tabs" } } }, "then": { "required": ["tabs"] } }
+  ],
+  "definitions": {
+    "vaultPath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*\\\\)(?!\\.\\.(?:/|$))(?!.*/\\.\\.(?:/|$)).+$",
+      "description": "Vault-relative path. Must stay inside the vault: no leading '/', no backslashes, no '..' segments. {{today}} expands to YYYY-MM-DD, {{today-7d}}/{{today+1d}} to offset dates, {{vaultName}} to the vault's name."
+    },
+    "whereClause": {
+      "type": "object",
+      "required": ["field"],
+      "additionalProperties": false,
+      "minProperties": 2,
+      "properties": {
+        "field": { "type": "string", "minLength": 1, "description": "Frontmatter field to test ('name' and 'modified' are synthetic)" },
+        "is": { "type": ["string", "number", "boolean"], "description": "Keep records where field equals this" },
+        "not": { "type": ["string", "number", "boolean"], "description": "Drop records where field equals this" },
+        "above": { "type": "number", "description": "Keep records where field is numerically greater" },
+        "below": { "type": "number", "description": "Keep records where field is numerically smaller" },
+        "after": { "type": "string", "description": "Keep records where field compares greater as a string; for ISO dates use tokens like {{today-7d}}" },
+        "before": { "type": "string", "description": "Keep records where field compares smaller as a string; for ISO dates use tokens like {{today}}" }
+      }
+    },
+    "action": {
+      "type": "object",
+      "required": ["label", "set"],
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "minLength": 1 },
+        "set": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": { "type": ["string", "number", "boolean"] },
+          "description": "Frontmatter fields written on click; string values expand {{today}}-style tokens"
+        }
+      }
+    },
+    "tab": {
+      "type": "object",
+      "required": ["id", "label", "panes"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+        "label": { "type": "string", "minLength": 1 },
+        "panes": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/pane" } }
+      }
+    },
+    "pane": {
+      "oneOf": [
+        { "$ref": "#/definitions/folderLatestPane" },
+        { "$ref": "#/definitions/folderListPane" },
+        { "$ref": "#/definitions/markdownEmbedPane" },
+        { "$ref": "#/definitions/tablePane" },
+        { "$ref": "#/definitions/formPane" },
+        { "$ref": "#/definitions/commandButtonsPane" },
+        { "$ref": "#/definitions/iframePane" },
+        { "$ref": "#/definitions/heatmapPane" },
+        { "$ref": "#/definitions/boardPane" },
+        { "$ref": "#/definitions/statPane" },
+        { "$ref": "#/definitions/customPane" }
+      ]
+    },
+    "folderLatestPane": {
+      "type": "object",
+      "required": ["type", "folder"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "folder-latest" },
+        "title": { "type": "string" },
+        "width": { "enum": ["half", "full"] },
+        "frame": { "type": "boolean" },
+        "refreshSec": { "type": "integer", "minimum": 5, "description": "Re-render this pane every N seconds (min 5). Omit for render-on-demand only" },
+        "folder": { "$ref": "#/definitions/vaultPath" },
+        "render": { "enum": ["markdown", "text"], "description": "How to render the newest note. Default: markdown" },
+        "showMeta": { "type": "boolean", "description": "Show filename + age line. Default: true" }
+      }
+    },
+    "folderListPane": {
+      "type": "object",
+      "required": ["type", "folder"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "folder-list" },
+        "title": { "type": "string" },
+        "width": { "enum": ["half", "full"] },
+        "frame": { "type": "boolean" },
+        "refreshSec": { "type": "integer", "minimum": 5, "description": "Re-render this pane every N seconds (min 5). Omit for render-on-demand only" },
+        "folder": { "$ref": "#/definitions/vaultPath" },
+        "showCounts": { "type": "boolean", "description": "Show file counts for subfolders. Default: true" },
+        "limit": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "markdownEmbedPane": {
+      "type": "object",
+      "required": ["type", "note"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "markdown-embed" },
+        "title": { "type": "string" },
+        "width": { "enum": ["half", "full"] },
+        "frame": { "type": "boolean" },
+        "refreshSec": { "type": "integer", "minimum": 5, "description": "Re-render this pane every N seconds (min 5). Omit for render-on-demand only" },
+        "note": {
+          "$ref": "#/definitions/vaultPath",
+          "description": "Vault path of the note to embed, e.g. raw/daily/{{today}}.md."
+        }
+      }
+    },
+    "tablePane": {
+      "type": "object",
+      "required": ["type", "source"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "table" },
+        "title": { "type": "string" },
+        "width": { "enum": ["half", "full"] },
+        "frame": { "type": "boolean" },
+        "refreshSec": { "type": "integer", "minimum": 5, "description": "Re-render this pane every N seconds (min 5). Omit for render-on-demand only" },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "oneOf": [{ "required": ["folder"] }, { "required": ["tags"] }],
+          "properties": {
+            "folder": { "$ref": "#/definitions/vaultPath" },
+            "tags": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string", "minLength": 1 },
+              "description": "Read every note carrying ALL of these tags (frontmatter or inline, '#' optional, nested tags match) instead of a folder"
+            },
+            "where": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "$ref": "#/definitions/whereClause" },
+              "description": "Frontmatter filters, ANDed. Synthetic fields 'name' and 'modified' also work"
+            }
+          }
+        },
+        "columns": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" },
+          "description": "Frontmatter field names. 'name' and 'modified' are always available."
+        },
+        "sort": {
+          "type": "object",
+          "required": ["by"],
+          "additionalProperties": false,
+          "properties": { "by": { "type": "string" }, "dir": { "enum": ["asc", "desc"] } }
+        },
+        "filter": { "type": "boolean", "description": "Show a text filter input. Default: true" },
+        "limit": { "type": "integer", "minimum": 1 },
+        "recursive": { "type": "boolean", "description": "Also read notes in subfolders. Default: false" },
+        "pageSize": { "type": "integer", "minimum": 10, "description": "Rows shown before a 'show more' button. Default: 100" },
+        "actions": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/definitions/action" },
+          "description": "Write-gated buttons on each row that set frontmatter fields, e.g. mark a task done"
+        }
+      }
+    },
+    "formPane": {
+      "type": "object",
+      "required": ["type", "target", "fields"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "form" },
+        "title": { "type": "string" },
+        "width": { "enum": ["half", "full"] },
+        "frame": { "type": "boolean" },
+        "refreshSec": { "type": "integer", "minimum": 5, "description": "Re-render this pane every N seconds (min 5). Omit for render-on-demand only" },
+        "target": {
+          "description": "Where submissions go. With 'folder': each submit creates a new note. With 'note': each submit appends to that note (optionally under 'section').",
+          "oneOf": [
+            {
+              "type": "object",
+              "required": ["folder"],
+              "additionalProperties": false,
+              "properties": {
+                "folder": { "$ref": "#/definitions/vaultPath" },
+                "template": { "type": "string", "description": "Note body template; {{field}} tokens are replaced" },
+                "filenameFrom": { "type": "string", "description": "Field whose value names the new note. Default: 'name' if present, else timestamp" }
+              }
+            },
+            {
+              "type": "object",
+              "required": ["note"],
+              "additionalProperties": false,
+              "properties": {
+                "note": { "$ref": "#/definitions/vaultPath" },
+                "section": { "type": "string", "description": "Markdown heading to append under, e.g. '## Log'. Default: end of note" },
+                "template": { "type": "string", "description": "Appended line/block; {{field}}, {{today}} and {{time}} tokens are replaced. Default: '- {{time}} ' + all field values" }
+              }
+            }
+          ]
+        },
+        "fields": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "additionalProperties": false,
+            "properties": {
+              "name": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]*$" },
+              "label": { "type": "string" },
+              "type": { "enum": ["text", "textarea", "date", "number", "select"] },
+              "options": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+              "required": { "type": "boolean" },
+              "default": { "type": "string" }
+            }
+          }
+        },
+        "submitLabel": { "type": "string" }
+      }
+    },
+    "commandButtonsPane": {
+      "type": "object",
+      "required": ["type", "buttons"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "command-buttons" },
+        "title": { "type": "string" },
+        "width": { "enum": ["half", "full"] },
+        "frame": { "type": "boolean" },
+        "refreshSec": { "type": "integer", "minimum": 5, "description": "Re-render this pane every N seconds (min 5). Omit for render-on-demand only" },
+        "buttons": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["label", "command"],
+            "additionalProperties": false,
+            "properties": {
+              "label": { "type": "string", "minLength": 1 },
+              "command": { "type": "string", "minLength": 1 },
+              "icon": { "type": "string", "description": "Lucide icon name" },
+              "terminal": { "type": "boolean", "description": "Style as a run-in-terminal button. Click always copies + opens a terminal; never auto-executes." }
+            }
+          }
+        }
+      }
+    },
+    "iframePane": {
+      "type": "object",
+      "required": ["type", "url"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "iframe" },
+        "title": { "type": "string" },
+        "width": { "enum": ["half", "full"] },
+        "frame": { "type": "boolean" },
+        "refreshSec": { "type": "integer", "minimum": 5, "description": "Re-render this pane every N seconds (min 5). Omit for render-on-demand only" },
+        "url": { "type": "string", "pattern": "^https://", "description": "https:// URL to embed" },
+        "height": { "type": "integer", "minimum": 60, "description": "Pixel height. Default: 360" }
+      }
+    },
+    "heatmapPane": {
+      "type": "object",
+      "required": ["type", "source"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "heatmap" },
+        "title": { "type": "string" },
+        "width": { "enum": ["half", "full"] },
+        "frame": { "type": "boolean" },
+        "refreshSec": { "type": "integer", "minimum": 5, "description": "Re-render this pane every N seconds (min 5). Omit for render-on-demand only" },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "oneOf": [{ "required": ["folder"] }, { "required": ["tags"] }],
+          "properties": {
+            "folder": { "$ref": "#/definitions/vaultPath" },
+            "tags": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string", "minLength": 1 },
+              "description": "Read every note carrying ALL of these tags (frontmatter or inline, '#' optional, nested tags match) instead of a folder"
+            },
+            "where": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "$ref": "#/definitions/whereClause" },
+              "description": "Frontmatter filters, ANDed. Synthetic fields 'name' and 'modified' also work"
+            }
+          }
+        },
+        "dateField": { "type": "string", "description": "Frontmatter field holding the note's date. Default: YYYY-MM-DD in the filename, else file mtime" },
+        "weeks": { "type": "integer", "minimum": 4, "maximum": 53, "description": "Weeks of history shown. Default: 26" },
+        "recursive": { "type": "boolean", "description": "Also count notes in subfolders. Default: false" }
+      }
+    },
+    "boardPane": {
+      "type": "object",
+      "required": ["type", "source", "groupBy"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "board" },
+        "title": { "type": "string" },
+        "width": { "enum": ["half", "full"] },
+        "frame": { "type": "boolean" },
+        "refreshSec": { "type": "integer", "minimum": 5, "description": "Re-render this pane every N seconds (min 5). Omit for render-on-demand only" },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "oneOf": [{ "required": ["folder"] }, { "required": ["tags"] }],
+          "properties": {
+            "folder": { "$ref": "#/definitions/vaultPath" },
+            "tags": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string", "minLength": 1 },
+              "description": "Read every note carrying ALL of these tags (frontmatter or inline, '#' optional, nested tags match) instead of a folder"
+            },
+            "where": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "$ref": "#/definitions/whereClause" },
+              "description": "Frontmatter filters, ANDed. Synthetic fields 'name' and 'modified' also work"
+            }
+          }
+        },
+        "groupBy": { "type": "string", "minLength": 1, "description": "Frontmatter field whose values become the board columns" },
+        "columns": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" },
+          "description": "Explicit column order. Notes with other values are hidden. Default: discovered values, sorted"
+        },
+        "cardFields": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" },
+          "description": "Extra frontmatter fields shown on each card"
+        },
+        "limit": { "type": "integer", "minimum": 1, "description": "Max cards per column" },
+        "recursive": { "type": "boolean", "description": "Also read notes in subfolders. Default: false" },
+        "actions": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/definitions/action" },
+          "description": "Write-gated buttons on each card that set frontmatter fields"
+        }
+      }
+    },
+    "statPane": {
+      "type": "object",
+      "required": ["type", "source"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "stat" },
+        "title": { "type": "string" },
+        "width": { "enum": ["half", "full"] },
+        "frame": { "type": "boolean" },
+        "refreshSec": { "type": "integer", "minimum": 5, "description": "Re-render this pane every N seconds (min 5). Omit for render-on-demand only" },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "oneOf": [{ "required": ["folder"] }, { "required": ["tags"] }],
+          "properties": {
+            "folder": { "$ref": "#/definitions/vaultPath" },
+            "tags": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string", "minLength": 1 },
+              "description": "Read every note carrying ALL of these tags (frontmatter or inline, '#' optional, nested tags match) instead of a folder"
+            },
+            "where": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "$ref": "#/definitions/whereClause" },
+              "description": "Frontmatter filters, ANDed. Synthetic fields 'name' and 'modified' also work"
+            }
+          }
+        },
+        "agg": { "enum": ["count", "sum", "avg", "min", "max"], "description": "Aggregation. Default: count. All except count require 'field'" },
+        "field": { "type": "string", "description": "Numeric frontmatter field to aggregate" },
+        "label": { "type": "string", "description": "Caption under the number. Default: derived from agg/field" },
+        "warn": {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "properties": {
+            "above": { "type": "number", "description": "Color the value as a warning when greater than this" },
+            "below": { "type": "number", "description": "Color the value as a warning when smaller than this" }
+          }
+        },
+        "sparkline": { "type": "boolean", "description": "Show a per-day trend line. Default: false" },
+        "days": { "type": "integer", "minimum": 7, "maximum": 365, "description": "Sparkline window in days. Default: 30" },
+        "dateField": { "type": "string", "description": "Frontmatter field holding the note's date. Default: YYYY-MM-DD in the filename, else file mtime" },
+        "recursive": { "type": "boolean", "description": "Also read notes in subfolders. Default: false" }
+      },
+      "allOf": [
+        { "if": { "properties": { "agg": { "enum": ["sum", "avg", "min", "max"] } }, "required": ["agg"] }, "then": { "required": ["field"] } }
+      ]
+    },
+    "customPane": {
+      "type": "object",
+      "required": ["type", "widget"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "custom" },
+        "title": { "type": "string" },
+        "width": { "enum": ["half", "full"] },
+        "frame": { "type": "boolean" },
+        "refreshSec": { "type": "integer", "minimum": 5, "description": "Re-render this pane every N seconds (min 5). Omit for render-on-demand only" },
+        "widget": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*(\\.[a-z0-9][a-z0-9-]*)+$",
+          "description": "Namespaced id of a widget registered via window.pinax.registerWidget, e.g. reading.shelf"
+        },
+        "config": { "type": "object", "description": "Free-form config passed to the widget" }
+      }
+    }
+  }
+}

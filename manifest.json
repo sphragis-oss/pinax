@@ -1,0 +1,10 @@
+{
+  "id": "pinax",
+  "name": "Pinax",
+  "version": "0.1.0",
+  "minAppVersion": "1.5.0",
+  "description": "Build config-driven dashboards on top of any vault: tables, kanban boards, heatmaps and forms from a single profile.json.",
+  "author": "nicknikolakakis",
+  "authorUrl": "https://github.com/nicknikolakakis",
+  "isDesktopOnly": false
+}

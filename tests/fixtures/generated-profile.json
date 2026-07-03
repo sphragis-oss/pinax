@@ -1,0 +1,39 @@
+{
+  "name": "Reading Tracker",
+  "layout": "grid",
+  "panes": [
+    {
+      "type": "table",
+      "title": "📚 BOOKS",
+      "width": "full",
+      "source": { "folder": "reading/books" },
+      "columns": ["name", "author", "status", "rating"],
+      "sort": { "by": "name", "dir": "asc" },
+      "filter": true
+    },
+    {
+      "type": "form",
+      "title": "✎ ADD BOOK",
+      "width": "half",
+      "target": {
+        "folder": "reading/books",
+        "filenameFrom": "name",
+        "template": "## Review\n\n{{thoughts}}\n"
+      },
+      "fields": [
+        { "name": "name", "label": "Title", "required": true },
+        { "name": "author", "label": "Author" },
+        { "name": "status", "label": "Status", "type": "select", "options": ["to-read", "reading", "done"], "default": "to-read" },
+        { "name": "rating", "label": "Rating (1-5)", "type": "number" },
+        { "name": "thoughts", "label": "First thoughts", "type": "textarea" }
+      ],
+      "submitLabel": "Add book"
+    },
+    {
+      "type": "folder-latest",
+      "title": "◐ LATEST BOOK NOTE",
+      "width": "half",
+      "folder": "reading/books"
+    }
+  ]
+}

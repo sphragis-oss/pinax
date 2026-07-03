@@ -1,0 +1,27 @@
+{
+  "name": "pinax",
+  "version": "0.1.0",
+  "description": "Pinax: domain-agnostic, LLM-buildable dashboard framework for Obsidian",
+  "main": "main.js",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "node esbuild.config.mjs production",
+    "test": "node tests/run.mjs",
+    "check:generic": "node scripts/check-generic.mjs",
+    "verify:criteria": "node scripts/verify-criteria.mjs",
+    "lint": "eslint .",
+    "bench": "node scripts/bench.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^20.11.0",
+    "ajv": "^8.17.1",
+    "esbuild": "^0.28.0",
+    "eslint": "^10.6.0",
+    "jsdom": "^29.1.1",
+    "obsidian": "latest",
+    "tslib": "^2.6.2",
+    "typescript": "^5.4.5",
+    "typescript-eslint": "^8.62.1"
+  }
+}

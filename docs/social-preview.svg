@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-label="Pinax: config-driven dashboards for Obsidian">
+  <title>Pinax</title>
+  <rect width="1280" height="640" fill="#131211"/>
+  <!-- oversized mark as background texture -->
+  <g transform="translate(880,140) scale(7.5)" opacity="0.05">
+    <rect x="4" y="8" width="56" height="48" rx="4" fill="none" stroke="#e8e2d6" stroke-width="3" stroke-linejoin="round"/>
+    <line x1="4" y1="18" x2="60" y2="18" stroke="#e8e2d6" stroke-width="2"/>
+    <rect x="10" y="23" width="44" height="11" rx="2" fill="none" stroke="#e8e2d6" stroke-width="2.4"/>
+    <rect x="10" y="38" width="21" height="13" rx="2" fill="#e8e2d6"/>
+    <rect x="33" y="38" width="21" height="13" rx="2" fill="#e8e2d6" fill-opacity="0.5"/>
+  </g>
+  <!-- lockup -->
+  <g transform="translate(392,192) scale(2.0625)">
+    <rect x="4" y="8" width="56" height="48" rx="4" fill="none" stroke="#e8e2d6" stroke-width="3" stroke-linejoin="round"/>
+    <line x1="4" y1="18" x2="60" y2="18" stroke="#e8e2d6" stroke-opacity="0.35" stroke-width="2"/>
+    <circle cx="9.5" cy="13" r="1.4" fill="#e8e2d6"/>
+    <circle cx="14.5" cy="13" r="1.4" fill="#e8e2d6" fill-opacity="0.6"/>
+    <circle cx="19.5" cy="13" r="1.4" fill="#e8e2d6" fill-opacity="0.3"/>
+    <rect x="10" y="23" width="44" height="11" rx="2" fill="none" stroke="#e8e2d6" stroke-width="2.4"/>
+    <polyline points="15.5,26 19,28.5 15.5,31" fill="none" stroke="#ffc799" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="45" y="25.5" width="4.5" height="6" rx="1" fill="#ffc799"/>
+    <rect x="10" y="38" width="21" height="13" rx="2" fill="#e8e2d6" fill-opacity="0.6"/>
+    <rect x="33" y="38" width="21" height="13" rx="2" fill="#e8e2d6" fill-opacity="0.35"/>
+  </g>
+  <text x="560" y="326" font-family="Iowan Old Style,Palatino,Book Antiqua,Georgia,serif" font-size="104" font-weight="600" letter-spacing="1" fill="#e8e2d6">Pin<tspan fill="#ffc799">a</tspan>x</text>
+  <text x="640" y="430" text-anchor="middle" font-family="JetBrains Mono,Menlo,Consolas,monospace" font-size="27" fill="#8d8579">Config-driven dashboards for Obsidian</text>
+  <text x="640" y="562" text-anchor="middle" font-family="JetBrains Mono,Menlo,Consolas,monospace" font-size="17" letter-spacing="4" fill="#ffc799">SPHRAGIS-OSS / PINAX</text>
+</svg>

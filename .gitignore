@@ -1,0 +1,8 @@
+node_modules/
+.DS_Store
+*.log
+tests/.build/
+exports/
+data.json
+main.js
+REFACTOR.md

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 224 64" height="64" role="img" aria-label="Pinax">
+  <title>Pinax</title>
+  <g transform="translate(2,8) scale(0.75)">
+    <rect x="4" y="8" width="56" height="48" rx="4" fill="none" stroke="#23201b" stroke-width="3" stroke-linejoin="round"/>
+    <line x1="4" y1="18" x2="60" y2="18" stroke="#23201b" stroke-opacity="0.35" stroke-width="2"/>
+    <circle cx="9.5" cy="13" r="1.4" fill="#23201b"/>
+    <circle cx="14.5" cy="13" r="1.4" fill="#23201b" fill-opacity="0.6"/>
+    <circle cx="19.5" cy="13" r="1.4" fill="#23201b" fill-opacity="0.3"/>
+    <rect x="10" y="23" width="44" height="11" rx="2" fill="none" stroke="#23201b" stroke-width="2.4"/>
+    <polyline points="15.5,26 19,28.5 15.5,31" fill="none" stroke="#a05f1f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="45" y="25.5" width="4.5" height="6" rx="1" fill="#a05f1f"/>
+    <rect x="10" y="38" width="21" height="13" rx="2" fill="#23201b" fill-opacity="0.6"/>
+    <rect x="33" y="38" width="21" height="13" rx="2" fill="#23201b" fill-opacity="0.35"/>
+  </g>
+  <text x="62" y="45" font-family="'Iowan Old Style','Palatino Linotype',Palatino,'Book Antiqua',Georgia,serif" font-size="38" font-weight="600" letter-spacing="0.5" fill="#23201b">Pin<tspan fill="#a05f1f">a</tspan>x</text>
+</svg>

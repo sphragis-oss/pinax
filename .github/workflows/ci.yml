@@ -1,0 +1,29 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx tsc --noEmit
+      - run: npm run lint
+      - run: npm test
+      - run: npm run check:generic
+      - run: npm run verify:criteria
+      - run: node scripts/validate-profile.mjs profiles/sre/profile.json
+      - run: node scripts/validate-profile.mjs profiles/helm/profile.json
+      - run: node scripts/validate-profile.mjs profiles/crm/profile.json

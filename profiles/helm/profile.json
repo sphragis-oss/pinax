@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "name": "The Helm",
+  "layout": "tabs",
+  "tabs": [
+    {
+      "id": "overview",
+      "label": "OVERVIEW",
+      "panes": [
+        { "type": "custom", "widget": "sre.hero", "frame": false, "width": "full" },
+        { "type": "custom", "widget": "sre.alerts", "frame": false, "width": "full" },
+        {
+          "type": "command-buttons",
+          "frame": false,
+          "width": "full",
+          "buttons": [
+            { "label": "Daily Note",   "command": "claude /daily-note",            "icon": "calendar",    "terminal": true },
+            { "label": "Morning Scan", "command": "claude /morning-trend-scan",    "icon": "telescope",   "terminal": true },
+            { "label": "GH Trending",  "command": "claude /github-trending-radar", "icon": "trending-up", "terminal": true },
+            { "label": "Vault Search", "command": "claude /vault-search",          "icon": "search" },
+            { "label": "Vault Recall", "command": "claude /vault-recall",          "icon": "brain" },
+            { "label": "Graphify",     "command": "claude /graphify",              "icon": "share-2" }
+          ]
+        },
+        { "type": "custom", "widget": "sre.scan", "title": "⬢ CNCF / PLATFORM RADAR", "width": "half", "config": { "folder": "raw/scans", "rowFilter": true } },
+        { "type": "custom", "widget": "sre.scan", "title": "★ GITHUB TRENDING (AI + CNCF, 7d)", "width": "half", "config": { "folder": "raw/scans/github-trending", "tableControls": true } },
+        { "type": "custom", "widget": "sre.tasks", "title": "▤ OPEN TASKS", "width": "half", "config": { "folders": ["raw/daily", "projects"], "exclude": ["projects/personal/claude-os"] } },
+        { "type": "custom", "widget": "sre.schedule", "title": "⏱ SCHEDULED RADARS", "width": "half" },
+        { "type": "custom", "widget": "sre.jira", "title": "◆ JIRA, MY OPEN TICKETS", "width": "full", "config": { "folder": "raw/scans/jira" } },
+        { "type": "custom", "widget": "sre.clotributor", "title": "✿ CNCF FIRST ISSUES (Go, no linked PRs)", "width": "full", "config": { "folder": "raw/scans/clotributor" } },
+        { "type": "custom", "widget": "sre.releases", "title": "⚡ CLAUDE CODE RELEASES (last 3)", "width": "full", "config": { "folder": "raw/scans/claude-code-releases" } },
+        { "type": "custom", "widget": "sre.projects", "title": "▣ PROJECTS", "width": "full", "config": { "folder": "projects" } }
+      ]
+    },
+    {
+      "id": "ops",
+      "label": "OPS",
+      "panes": [
+        {
+          "type": "command-buttons",
+          "frame": false,
+          "width": "full",
+          "buttons": [
+            { "label": "TF PR Review",    "command": "claude /tf-review-pr",          "icon": "git-pull-request" },
+            { "label": "Platform State",  "command": "claude /platform-state",        "icon": "layers",     "terminal": true },
+            { "label": "Reliability",     "command": "claude /reliability-state",     "icon": "gauge",      "terminal": true },
+            { "label": "SLA Investigate", "command": "claude /sla-investigate",       "icon": "activity" },
+            { "label": "K8s Pod Restart", "command": "claude /check-k8s-pod-restart", "icon": "refresh-cw" },
+            { "label": "TF Guide",        "command": "claude /tf-guide",              "icon": "book-open" }
+          ]
+        },
+        { "type": "custom", "widget": "sre.platform", "frame": false, "width": "full", "config": { "folder": "raw/scans/platform", "label": "PLATFORM · terraform / helm / kubernetes" } },
+        { "type": "custom", "widget": "sre.reliability", "frame": false, "width": "full", "config": { "folder": "raw/scans/reliability", "label": "RELIABILITY · SLA / SLOs" } }
+      ]
+    },
+    {
+      "id": "standup",
+      "label": "STANDUP",
+      "panes": [
+        {
+          "type": "command-buttons",
+          "frame": false,
+          "width": "full",
+          "buttons": [
+            { "label": "Standup Brief", "command": "claude /standup-brief",      "icon": "clipboard-list", "terminal": true },
+            { "label": "Daily Note",    "command": "claude /daily-note",         "icon": "calendar",       "terminal": true },
+            { "label": "Morning Scan",  "command": "claude /morning-trend-scan", "icon": "telescope",      "terminal": true },
+            { "label": "Vault Recall",  "command": "claude /vault-recall",       "icon": "brain" }
+          ]
+        },
+        { "type": "custom", "widget": "sre.standup", "frame": false, "width": "full", "config": { "folder": "raw/daily" } }
+      ]
+    },
+    {
+      "id": "reports",
+      "label": "REPORTS",
+      "panes": [
+        {
+          "type": "command-buttons",
+          "frame": false,
+          "width": "full",
+          "buttons": [
+            { "label": "DR Daily",     "command": "claude /dr-daily",     "icon": "user-check",    "terminal": true },
+            { "label": "DR Weekly",    "command": "claude /dr-weekly",    "icon": "calendar-days", "terminal": true },
+            { "label": "Vault Search", "command": "claude /vault-search", "icon": "search" }
+          ]
+        },
+        { "type": "custom", "widget": "sre.reports", "frame": false, "width": "full", "config": { "folder": "projects/work/direct-reports" } }
+      ]
+    },
+    {
+      "id": "system",
+      "label": "SYSTEM",
+      "panes": [
+        {
+          "type": "command-buttons",
+          "frame": false,
+          "width": "full",
+          "buttons": [
+            { "label": "MCP Audit",       "command": "claude /mcp-audit",            "icon": "plug",           "terminal": true },
+            { "label": "Vault Optimizer", "command": "claude /vault-optimizer",      "icon": "sparkles",       "terminal": true },
+            { "label": "Monthly Index",   "command": "claude /vault-monthly-index",  "icon": "calendar-range", "terminal": true },
+            { "label": "CC Releases",     "command": "claude /claude-code-releases", "icon": "package",        "terminal": true },
+            { "label": "CLOTributor",     "command": "claude /clotributor-radar",    "icon": "git-fork",       "terminal": true }
+          ]
+        },
+        { "type": "custom", "widget": "sre.services", "frame": false, "width": "full", "title": "◉ LOCAL STACK" },
+        { "type": "custom", "widget": "sre.mcp", "frame": false, "width": "full", "config": { "folder": "raw/scans/mcp-audit" } },
+        { "type": "custom", "widget": "sre.usage", "frame": false, "width": "full" }
+      ]
+    }
+  ]
+}

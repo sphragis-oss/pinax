@@ -1,0 +1,35 @@
+name: My profile does not load or render
+description: A profile.json validates wrong, shows an error panel, or renders unexpectedly
+labels: ["profile-help"]
+body:
+  - type: textarea
+    id: profile
+    attributes:
+      label: profile.json
+      description: The full profile, redacted as needed.
+      render: json
+    validations:
+      required: true
+  - type: textarea
+    id: errors
+    attributes:
+      label: What pinax shows
+      description: The error panel text, placeholder text, or a screenshot of the wrong rendering.
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics
+      description: 'Run "Pinax: Copy diagnostics" from the command palette and paste the result.'
+      render: json
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Already checked
+      options:
+        - label: I validated the profile with `node scripts/validate-profile.mjs <path>` (or read the error panel)
+        - label: The folders/notes the profile points at actually exist in my vault
+        - label: The trust toggles the panes need are enabled for this profile

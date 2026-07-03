@@ -1,0 +1,31 @@
+name: Bug report
+description: Something in pinax itself is broken
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What did you do, what did you expect, what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics
+      description: 'Run the command palette entry "Pinax: Copy diagnostics" and paste the result here. It contains versions, pane types and trust booleans, no note content.'
+      render: json
+    validations:
+      required: true
+  - type: textarea
+    id: console
+    attributes:
+      label: Console errors
+      description: Open the developer console (Cmd/Ctrl+Shift+I), reproduce, and paste any errors mentioning pinax.
+      render: text
+  - type: textarea
+    id: profile
+    attributes:
+      label: profile.json (if relevant)
+      description: The profile that triggers the bug, redacted as needed.
+      render: json

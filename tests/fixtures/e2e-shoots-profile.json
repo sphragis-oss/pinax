@@ -1,0 +1,39 @@
+{
+  "name": "Shoot Board",
+  "layout": "grid",
+  "panes": [
+    {
+      "type": "table",
+      "title": "SHOOTS",
+      "width": "full",
+      "source": { "folder": "photo/shoots" },
+      "columns": ["client", "date", "location", "status", "fee"],
+      "sort": { "by": "date", "dir": "desc" }
+    },
+    {
+      "type": "form",
+      "title": "LOG A SHOOT",
+      "width": "half",
+      "target": {
+        "folder": "photo/shoots",
+        "filenameFrom": "client",
+        "template": "## Shoot notes\n\nClient: {{client}}\nLocation: {{location}}\n"
+      },
+      "fields": [
+        { "name": "client", "label": "Client", "required": true },
+        { "name": "date", "label": "Date", "type": "date" },
+        { "name": "location", "label": "Location" },
+        { "name": "status", "label": "Status", "type": "select",
+          "options": ["inquiry", "booked", "shot", "delivered"], "default": "inquiry" },
+        { "name": "fee", "label": "Fee", "type": "number" }
+      ],
+      "submitLabel": "Add shoot"
+    },
+    {
+      "type": "markdown-embed",
+      "title": "INVOICING CHECKLIST",
+      "width": "half",
+      "note": "photo/invoicing.md"
+    }
+  ]
+}

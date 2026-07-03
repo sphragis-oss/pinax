@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "name": "Bookshelf",
+  "layout": "grid",
+  "panes": [
+    {
+      "type": "table",
+      "title": "◆ LIBRARY",
+      "width": "half",
+      "source": { "folder": "reading/books" },
+      "columns": ["name", "author", "status", "rating"],
+      "sort": { "by": "name", "dir": "asc" },
+      "filter": true
+    },
+    {
+      "type": "form",
+      "title": "✎ ADD BOOK",
+      "width": "half",
+      "target": {
+        "folder": "reading/books",
+        "filenameFrom": "name",
+        "template": "## Notes\n\n{{name}} by {{author}}\n"
+      },
+      "fields": [
+        { "name": "name", "label": "Title", "required": true },
+        { "name": "author", "label": "Author" },
+        { "name": "status", "label": "Status", "type": "select", "options": ["to-read", "reading", "finished"], "default": "to-read" },
+        { "name": "rating", "label": "Rating (1-5)", "type": "number" },
+        { "name": "finished", "label": "Finished on", "type": "date" }
+      ],
+      "submitLabel": "Add book"
+    },
+    {
+      "type": "custom",
+      "widget": "reading.shelf",
+      "title": "▸ SHELF",
+      "width": "full",
+      "config": { "folder": "reading/books", "statusField": "status", "shelves": ["to-read", "reading", "finished"] }
+    },
+    {
+      "type": "stat",
+      "title": "▸ FINISHED LAST 12 MONTHS",
+      "width": "half",
+      "source": { "folder": "reading/books", "where": [{ "field": "finished", "after": "{{today-365d}}" }] },
+      "agg": "count",
+      "label": "books finished"
+    },
+    {
+      "type": "stat",
+      "title": "▸ AVG RATING",
+      "width": "half",
+      "source": { "folder": "reading/books", "where": [{ "field": "status", "is": "finished" }] },
+      "agg": "avg",
+      "field": "rating",
+      "label": "avg rating"
+    }
+  ]
+}

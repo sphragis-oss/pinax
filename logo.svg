@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Pinax" color="#d08744">
+  <title>Pinax</title>
+  <!-- terminal shell -->
+  <rect x="4" y="8" width="56" height="48" rx="4" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
+  <line x1="4" y1="18" x2="60" y2="18" stroke="currentColor" stroke-opacity="0.35" stroke-width="2"/>
+  <circle cx="9.5" cy="13" r="1.4" fill="currentColor"/>
+  <circle cx="14.5" cy="13" r="1.4" fill="currentColor" fill-opacity="0.6"/>
+  <circle cx="19.5" cy="13" r="1.4" fill="currentColor" fill-opacity="0.3"/>
+  <!-- command bar with prompt and cursor -->
+  <rect x="10" y="23" width="44" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="2.4"/>
+  <polyline points="15.5,26 19,28.5 15.5,31" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="45" y="25.5" width="4.5" height="6" rx="1" fill="currentColor"/>
+  <!-- panes -->
+  <rect x="10" y="38" width="21" height="13" rx="2" fill="currentColor" fill-opacity="0.6"/>
+  <rect x="33" y="38" width="21" height="13" rx="2" fill="currentColor" fill-opacity="0.35"/>
+</svg>
