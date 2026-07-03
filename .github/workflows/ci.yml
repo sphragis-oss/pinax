@@ -26,4 +26,4 @@ jobs:
       - run: npm run verify:criteria
       - run: node scripts/validate-profile.mjs profiles/sre/profile.json
       - run: node scripts/validate-profile.mjs profiles/helm/profile.json
-      - run: node scripts/validate-profile.mjs profiles/crm/profile.json
+      - run: node scripts/validate-profile.mjs profiles/reading/profile.json
