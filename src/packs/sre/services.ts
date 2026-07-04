@@ -1,7 +1,7 @@
 import { Platform } from "obsidian";
 import type { WidgetCleanup, WidgetContext, WidgetSpec } from "../../core/types";
 import { runCommand } from "../../core/terminal";
-import { nodeRequire } from "../../core/platform";
+import { nodeRequire, NodeFs } from "../../core/platform";
 import { checkOllama, checkFirecrawl, dockerPs } from "./probes";
 
 type SvcAction = { label: string; cmd: string };
@@ -13,7 +13,7 @@ function nowHHMM(): string {
 }
 
 function indexProbe(ctx: WidgetContext, relFile: string, relMarker: string, label: string, updateCmd: string): Probe {
-  const fs = nodeRequire<typeof import("fs")>("fs");
+  const fs = nodeRequire<NodeFs>("fs");
   const adapter = ctx.app.vault.adapter as { getBasePath?: () => string };
   const base = typeof adapter.getBasePath === "function" ? adapter.getBasePath() : null;
   if (!fs || !base) return { status: "down", badge: "n/a", lines: [label, "desktop only"], actions: [] };

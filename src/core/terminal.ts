@@ -1,5 +1,5 @@
 import { App, Notice, Platform, WorkspaceLeaf } from "obsidian";
-import { nodeRequire } from "./platform";
+import { nodeRequire, NodeChildProcess } from "./platform";
 
 function findTerminalLeaf(app: App): WorkspaceLeaf | null {
   let found: WorkspaceLeaf | null = null;
@@ -41,7 +41,7 @@ export async function runCommand(app: App, cmd: string): Promise<void> {
   if (opened) return;
 
   if (Platform.isMacOS) {
-    const cp = nodeRequire<typeof import("child_process")>("child_process");
+    const cp = nodeRequire<NodeChildProcess>("child_process");
     if (cp) {
       try {
         const child = cp.spawn("open", ["-a", "Terminal"], { stdio: "ignore" });

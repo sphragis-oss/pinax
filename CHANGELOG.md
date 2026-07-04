@@ -2,6 +2,15 @@
 
 All notable changes to pinax are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.1.3] - 2026-07-04
+
+Review-scorecard cleanup; no user-facing changes.
+
+### Changed
+
+- Node builtins (`fs`, `path`, `os`, `child_process`, `process.env`) are accessed through minimal local typings and `envVar`/`envAll` helpers, so the code typechecks without `@types/node`; clears the unsafe-any warnings on the community review scorecard.
+- Settings tab re-renders via an internal `redraw()` instead of calling the deprecated `display()`.
+
 ## [0.1.2] - 2026-07-04
 
 Removes in-vault code execution to comply with the Obsidian community review; custom widgets now come from companion plugins.

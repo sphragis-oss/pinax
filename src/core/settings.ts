@@ -39,6 +39,10 @@ export class PinaxSettingTab extends PluginSettingTab {
   }
 
   display(): void {
+    this.redraw();
+  }
+
+  private redraw(): void {
     this.containerEl.empty();
     void this.renderAsync();
   }
@@ -53,7 +57,7 @@ export class PinaxSettingTab extends PluginSettingTab {
         for (const id of ids) dd.addOption(id, id);
         dd.setValue(this.host.prefs.activeProfile);
         dd.onChange((v) => {
-          void this.host.setActiveProfile(v).then(() => this.display());
+          void this.host.setActiveProfile(v).then(() => this.redraw());
         });
       });
 
@@ -118,7 +122,7 @@ export class PinaxSettingTab extends PluginSettingTab {
       return;
     }
     await this.host.reloadProfile();
-    this.display();
+    this.redraw();
   }
 
   private async renderPaneEditor(el: HTMLElement): Promise<void> {
@@ -137,7 +141,7 @@ export class PinaxSettingTab extends PluginSettingTab {
       new Setting(el).setName("Tab").addDropdown((dd) => {
         for (const t of tabs) dd.addOption(t.id, t.label);
         if (this.editTabId) dd.setValue(this.editTabId);
-        dd.onChange((v) => { this.editTabId = v; this.display(); });
+        dd.onChange((v) => { this.editTabId = v; this.redraw(); });
       });
     }
 
@@ -209,7 +213,7 @@ export class PinaxSettingTab extends PluginSettingTab {
           .then(async () => {
             new Notice(`Duplicated to "${dupId}"`);
             await this.host.setActiveProfile(dupId);
-            this.display();
+            this.redraw();
           })
           .catch((err) => new Notice(String(err)));
       }));
@@ -228,7 +232,7 @@ export class PinaxSettingTab extends PluginSettingTab {
         .then(async (id) => {
           new Notice(`Imported profile "${id}"`);
           await this.host.setActiveProfile(id);
-          this.display();
+          this.redraw();
         })
         .catch((err) => new Notice(String(err)));
     }));
@@ -259,7 +263,7 @@ export class PinaxSettingTab extends PluginSettingTab {
           const id = await this.host.store.importBundle(res.text);
           new Notice(`Imported profile "${id}"`);
           await this.host.setActiveProfile(id);
-          this.display();
+          this.redraw();
         })
         .catch((err) => new Notice(String(err)));
     }));

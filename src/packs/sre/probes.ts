@@ -1,19 +1,19 @@
 import { requestUrl } from "obsidian";
-import { nodeRequire } from "../../core/platform";
+import { envAll, envVar, nodeRequire, NodeChild, NodeChildProcess, NodeOs, NodePath } from "../../core/platform";
 
 export interface OllamaProbe { up: boolean; version: string; model: string; modelPulled: boolean; }
 export interface FirecrawlProbe { up: boolean; port: string; }
 
 export async function checkOllama(): Promise<OllamaProbe> {
   const base = "http://localhost:11434";
-  const model = process.env.VAULT_RECALL_MODEL || "bge-m3";
+  const model = envVar("VAULT_RECALL_MODEL") || "bge-m3";
   try {
     const ver = await requestUrl({ url: `${base}/api/version`, method: "GET" });
-    const version = (ver.json?.version as string) || "";
+    const version = (ver.json as { version?: string } | null)?.version ?? "";
     let modelPulled = false;
     try {
       const tags = await requestUrl({ url: `${base}/api/tags`, method: "GET" });
-      const names: string[] = (tags.json?.models ?? []).map((m: { name: string }) => m.name);
+      const names = ((tags.json as { models?: { name: string }[] } | null)?.models ?? []).map((m) => m.name);
       modelPulled = names.some((n) => n === model || n.startsWith(model + ":"));
     } catch { /* tags optional */ }
     return { up: true, version, model, modelPulled };
@@ -23,7 +23,7 @@ export async function checkOllama(): Promise<OllamaProbe> {
 }
 
 export async function checkFirecrawl(): Promise<FirecrawlProbe> {
-  const base = process.env.FIRECRAWL_URL || "http://localhost:3002";
+  const base = envVar("FIRECRAWL_URL") || "http://localhost:3002";
   const port = base.match(/:(\d+)/)?.[1] || "3002";
   try {
     const r = await requestUrl({ url: `${base}/v0/health/liveness`, method: "GET" });
@@ -40,14 +40,14 @@ export async function checkFirecrawl(): Promise<FirecrawlProbe> {
 
 export function dockerPs(): Promise<{ up: boolean; count: number; names: string[] }> {
   return new Promise((resolve) => {
-    const cp = nodeRequire<typeof import("child_process")>("child_process");
-    const path = nodeRequire<typeof import("path")>("path");
-    const os = nodeRequire<typeof import("os")>("os");
+    const cp = nodeRequire<NodeChildProcess>("child_process");
+    const path = nodeRequire<NodePath>("path");
+    const os = nodeRequire<NodeOs>("os");
     if (!cp || !path || !os) { resolve({ up: false, count: 0, names: [] }); return; }
-    const shell = process.env.SHELL || "/bin/zsh";
+    const shell = envVar("SHELL") || "/bin/zsh";
     const extra = ["/opt/homebrew/bin", "/usr/local/bin", path.join(os.homedir(), ".local/bin")];
-    const env = { ...process.env, PATH: `${extra.join(":")}:${process.env.PATH || ""}` };
-    let child: ReturnType<typeof cp.spawn>;
+    const env = { ...envAll(), PATH: `${extra.join(":")}:${envVar("PATH") || ""}` };
+    let child: NodeChild;
     try { child = cp.spawn(shell, ["-lc", "docker ps --format '{{.Names}}'"], { env, stdio: ["ignore", "pipe", "pipe"] }); }
     catch { resolve({ up: false, count: 0, names: [] }); return; }
     let out = "";

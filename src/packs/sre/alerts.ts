@@ -1,7 +1,7 @@
 import { Notice, Platform, TFile } from "obsidian";
 import type { WidgetContext, WidgetSpec } from "../../core/types";
 import { runCommand } from "../../core/terminal";
-import { nodeRequire } from "../../core/platform";
+import { nodeRequire, NodeFs } from "../../core/platform";
 import { parseScan, parseFrontmatter, parseMcpAudit } from "./parse";
 import { scanFilesIn } from "./helpers";
 import { checkOllama, checkFirecrawl } from "./probes";
@@ -67,7 +67,7 @@ export const alertsWidget: WidgetSpec = {
     }
 
     // 5) stale local indexes (desktop only)
-    const fs = Platform.isDesktopApp ? nodeRequire<typeof import("fs")>("fs") : null;
+    const fs = Platform.isDesktopApp ? nodeRequire<NodeFs>("fs") : null;
     const base = vaultBasePath(ctx);
     if (fs && base) {
       if (fs.existsSync(`${base}/graphify-out/recall_needs_update`)) {

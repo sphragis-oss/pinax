@@ -1,6 +1,6 @@
 import { Platform } from "obsidian";
 import type { WidgetContext, WidgetSpec } from "../../core/types";
-import { nodeRequire } from "../../core/platform";
+import { nodeRequire, NodeDirent, NodeFs, NodeOs, NodePath, NodeStats } from "../../core/platform";
 import { metricTile } from "./helpers";
 
 export function prettyModel(id: string): string {
@@ -79,9 +79,9 @@ export function fmtTokens(n: number): string {
 // Reads local Claude Code session logs (~/.claude/projects); desktop only
 export async function aggregateWindow(days: number): Promise<WindowAgg | null> {
   if (!Platform.isDesktopApp) return null;
-  const fs = nodeRequire<typeof import("fs")>("fs");
-  const path = nodeRequire<typeof import("path")>("path");
-  const os = nodeRequire<typeof import("os")>("os");
+  const fs = nodeRequire<NodeFs>("fs");
+  const path = nodeRequire<NodePath>("path");
+  const os = nodeRequire<NodeOs>("os");
   if (!fs || !path || !os) return null;
 
   const projectsDir = path.join(os.homedir(), ".claude", "projects");
@@ -101,12 +101,12 @@ export async function aggregateWindow(days: number): Promise<WindowAgg | null> {
   for (const pd of fs.readdirSync(projectsDir, { withFileTypes: true })) {
     if (!pd.isDirectory()) continue;
     const projPath = path.join(projectsDir, pd.name);
-    let files: import("fs").Dirent[];
+    let files: NodeDirent[];
     try { files = fs.readdirSync(projPath, { withFileTypes: true }); } catch { continue; }
     for (const f of files) {
       if (!f.isFile() || !f.name.endsWith(".jsonl")) continue;
       const filePath = path.join(projPath, f.name);
-      let stat: import("fs").Stats;
+      let stat: NodeStats;
       try { stat = fs.statSync(filePath); } catch { continue; }
       if (stat.mtimeMs < cutoff) continue;
       let content: string;
