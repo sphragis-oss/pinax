@@ -154,7 +154,12 @@ export class MockVault {
       if (!this.store.has(cur)) this.store.set(cur, { type: "dir", mtime: Date.now(), ctime: Date.now() });
     }
   }
-  putFile(p, content, mtime = Date.now()) {
+  putFile(p, content, mtime) {
+    // default mtimes are strictly increasing so "latest" checks never tie
+    if (mtime === undefined) {
+      this.mtimeClock = Math.max((this.mtimeClock ?? 0) + 1, Date.now());
+      mtime = this.mtimeClock;
+    }
     const norm = normalizePath(p);
     const dir = norm.split("/").slice(0, -1).join("/");
     if (dir) this.ensureDir(dir);

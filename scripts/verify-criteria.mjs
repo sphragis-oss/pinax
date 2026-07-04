@@ -86,7 +86,7 @@ function seedVault(app) {
   v.putFile("notes-misc/three.md", "unrelated #other note");
   v.putFile("events/recent.md", ["---", `date: ${isoOffset(-2)}`, "---"].join("\n"));
   v.putFile("events/old.md", ["---", "date: 2000-01-01", "---"].join("\n"));
-  v.putFile("reading/books/Ubik.md", ["---", "name: Ubik", "author: Philip K. Dick", "status: finished", "rating: 4", `finished: ${isoOffset(-30)}`, "---"].join("\n"));
+  v.putFile("reading/books/Ubik.md", ["---", "name: Ubik", "author: Philip K. Dick", "status: finished", "rating: 4", `finished: ${isoOffset(-30)}`, "---"].join("\n"), Date.now() - 30 * 86400000);
   v.putFile("actions/task-a.md", ["---", "name: task-a", "status: open", "---"].join("\n"));
   for (let i = 1; i <= 12; i++) {
     v.putFile(`bulk/items/item-${String(i).padStart(2, "0")}.md`, ["---", `name: item-${i}`, `rank: ${i}`, "---"].join("\n"));
