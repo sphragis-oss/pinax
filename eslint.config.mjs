@@ -12,7 +12,8 @@ export default tseslint.config(
   },
   {
     files: ["examples/**/*.js"],
-    languageOptions: { globals: { window: "readonly", console: "readonly", pinax: "readonly" } },
+    languageOptions: { globals: { window: "readonly", console: "readonly", pinax: "readonly", require: "readonly", module: "writable", setTimeout: "readonly" } },
+    rules: { "@typescript-eslint/no-require-imports": "off" },
   },
   {
     rules: {
