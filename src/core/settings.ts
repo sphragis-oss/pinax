@@ -51,13 +51,13 @@ export class PinaxSettingTab extends PluginSettingTab {
       .setDesc("Profiles live in the plugin folder under profiles/<id>/profile.json and hot-reload on edit.")
       .addDropdown((dd) => {
         for (const id of ids) dd.addOption(id, id);
-        dd.setValue(this.host.settings.activeProfile);
+        dd.setValue(this.host.prefs.activeProfile);
         dd.onChange((v) => {
           void this.host.setActiveProfile(v).then(() => this.display());
         });
       });
 
-    const activeId = this.host.settings.activeProfile;
+    const activeId = this.host.prefs.activeProfile;
     new Setting(el).setName(`Trusted capabilities · ${activeId || "(no profile)"}`).setHeading();
     el.createEl("p", {
       text: "Trust is granted per profile and every toggle starts OFF. A newly imported profile never inherits trust you gave another one. Only enable capabilities for profiles you trust.",
@@ -79,7 +79,7 @@ export class PinaxSettingTab extends PluginSettingTab {
       .addToggle((t) => {
         t.setValue(this.host.activeTrust()[gate]);
         t.onChange((v) => {
-          const trust = this.host.ensureTrust(this.host.settings.activeProfile);
+          const trust = this.host.ensureTrust(this.host.prefs.activeProfile);
           trust[gate] = v;
           void this.host.saveSettings().then(async () => {
             // code toggle changes which widgets exist, so reload the whole profile
@@ -99,7 +99,7 @@ export class PinaxSettingTab extends PluginSettingTab {
   }
 
   private async mutateProfile(mutate: (panes: PaneConfig[]) => void): Promise<void> {
-    const id = this.host.settings.activeProfile;
+    const id = this.host.prefs.activeProfile;
     const res = await this.host.store.read(id);
     if (!res.ok || !res.profile) {
       new Notice(`pinax: cannot edit "${id}": ${res.errors.join("; ")}`);
@@ -127,7 +127,7 @@ export class PinaxSettingTab extends PluginSettingTab {
   }
 
   private async renderPaneEditor(el: HTMLElement): Promise<void> {
-    const id = this.host.settings.activeProfile;
+    const id = this.host.prefs.activeProfile;
     new Setting(el).setName(`Panes · ${id || "(no profile)"}`).setHeading();
     const res = id ? await this.host.store.read(id) : null;
     if (!res || !res.ok || !res.profile) {
@@ -186,7 +186,7 @@ export class PinaxSettingTab extends PluginSettingTab {
   private async renderShare(el: HTMLElement, ids: string[]): Promise<void> {
     new Setting(el).setName("Share profiles").setHeading();
 
-    let exportId = this.host.settings.activeProfile || ids[0] || "";
+    let exportId = this.host.prefs.activeProfile || ids[0] || "";
     new Setting(el)
       .setName("Export bundle")
       .setDesc("Writes a shareable JSON bundle (profile.json + widgets.js if present) into the plugin folder under exports/.")
@@ -210,7 +210,7 @@ export class PinaxSettingTab extends PluginSettingTab {
         t.onChange((v) => { dupId = v.trim(); });
       })
       .addButton((b) => b.setButtonText("Duplicate").onClick(() => {
-        void this.host.store.duplicate(this.host.settings.activeProfile, dupId)
+        void this.host.store.duplicate(this.host.prefs.activeProfile, dupId)
           .then(async () => {
             new Notice(`Duplicated to "${dupId}"`);
             await this.host.setActiveProfile(dupId);

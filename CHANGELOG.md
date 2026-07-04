@@ -2,6 +2,19 @@
 
 All notable changes to pinax are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.1.1] - 2026-07-04
+
+Community review fixes; no user-facing feature changes.
+
+### Changed
+
+- `minAppVersion` raised to 1.8.7 (needs `Workspace.revealLeaf` returning a promise and `App#loadLocalStorage`/`App#saveLocalStorage`).
+- UI state (theme, density, collapsed panes, autorefresh) is stored per vault via `App#saveLocalStorage` instead of shared `localStorage`.
+- Popout-window compatibility: `activeDocument` instead of `document`, `window.require` instead of `globalThis.require`, `createSvg` for SVG nodes.
+- The "Open dashboard" command id no longer duplicates the plugin id (re-bind your hotkey if you had one).
+- Internal `Plugin.settings` property renamed to avoid colliding with the Obsidian 1.13 settings API.
+- `npm run lint:obsidian` mirrors the community review bot (eslint-plugin-obsidianmd).
+
 ## [0.1.0] - 2026-07-03
 
 Initial release: a domain-agnostic, config-driven dashboard framework for Obsidian, seeded from the "command-center" (The Helm) plugin.

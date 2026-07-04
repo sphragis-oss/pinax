@@ -31,7 +31,7 @@ function normalizeTrust(raw: Partial<TrustSettings> | undefined): TrustSettings 
 }
 
 export default class PinaxPlugin extends Plugin implements PinaxHost {
-  settings: PinaxSettings = { ...DEFAULT_SETTINGS, profileTrust: {} };
+  prefs: PinaxSettings = { ...DEFAULT_SETTINGS, profileTrust: {} };
   registry = new WidgetRegistry();
   store = new ProfileStore(this);
   profile: Profile | null = null;
@@ -53,7 +53,7 @@ export default class PinaxPlugin extends Plugin implements PinaxHost {
 
     this.registerView(PINAX_VIEW_TYPE, (leaf) => new PinaxView(leaf, this));
     this.addRibbonIcon("layout-dashboard", "Open Pinax", () => { void this.activate(); });
-    this.addCommand({ id: "open-pinax", name: "Open dashboard", callback: () => { void this.activate(); } });
+    this.addCommand({ id: "open", name: "Open dashboard", callback: () => { void this.activate(); } });
     this.addCommand({ id: "copy-diagnostics", name: "Copy diagnostics", callback: () => { void this.copyDiagnostics(); } });
     this.addSettingTab(new PinaxSettingTab(this.app, this));
 
@@ -86,7 +86,7 @@ export default class PinaxPlugin extends Plugin implements PinaxHost {
       plugin: `${this.manifest.id} ${this.manifest.version}`,
       apiVersion: window.pinax?.apiVersion ?? null,
       platform: { mobile: Platform.isMobile, desktopApp: Platform.isDesktopApp },
-      activeProfile: this.settings.activeProfile,
+      activeProfile: this.prefs.activeProfile,
       profiles: await this.store.list(),
       layout: this.profile?.layout ?? null,
       paneTypes,
@@ -117,14 +117,14 @@ export default class PinaxPlugin extends Plugin implements PinaxHost {
   }
 
   activeTrust(): TrustSettings {
-    return this.settings.profileTrust[this.settings.activeProfile] ?? NO_TRUST;
+    return this.prefs.profileTrust[this.prefs.activeProfile] ?? NO_TRUST;
   }
 
   ensureTrust(id: string): TrustSettings {
-    if (!this.settings.profileTrust[id]) {
-      this.settings.profileTrust[id] = { ...NO_TRUST };
+    if (!this.prefs.profileTrust[id]) {
+      this.prefs.profileTrust[id] = { ...NO_TRUST };
     }
-    return this.settings.profileTrust[id];
+    return this.prefs.profileTrust[id];
   }
 
   private async bootstrapProfiles(): Promise<void> {
@@ -134,9 +134,9 @@ export default class PinaxPlugin extends Plugin implements PinaxHost {
       console.error("pinax: failed to materialize bundled profiles", err);
     }
     const ids = await this.store.list();
-    if (!this.settings.activeProfile || !ids.includes(this.settings.activeProfile)) {
+    if (!this.prefs.activeProfile || !ids.includes(this.prefs.activeProfile)) {
       const preferred = Object.keys(bundledProfiles).find((id) => ids.includes(id));
-      this.settings.activeProfile = preferred ?? ids[0] ?? "";
+      this.prefs.activeProfile = preferred ?? ids[0] ?? "";
       await this.saveSettings();
     }
     await this.reloadProfile();
@@ -144,7 +144,7 @@ export default class PinaxPlugin extends Plugin implements PinaxHost {
   }
 
   async reloadProfile(): Promise<void> {
-    const id = this.settings.activeProfile;
+    const id = this.prefs.activeProfile;
     if (!id) {
       this.profile = null;
       this.profileErrors = ["no profile is active; add one under the plugin's profiles/ folder"];
@@ -164,7 +164,7 @@ export default class PinaxPlugin extends Plugin implements PinaxHost {
   }
 
   async setActiveProfile(id: string): Promise<void> {
-    this.settings.activeProfile = id;
+    this.prefs.activeProfile = id;
     await this.saveSettings();
     await this.reloadProfile();
     this.startWatch();
@@ -173,8 +173,8 @@ export default class PinaxPlugin extends Plugin implements PinaxHost {
   private startWatch(): void {
     this.stopWatch?.();
     this.stopWatch = null;
-    if (!this.settings.activeProfile) return;
-    this.stopWatch = this.store.watch(this.settings.activeProfile, () => { void this.reloadProfile(); });
+    if (!this.prefs.activeProfile) return;
+    this.stopWatch = this.store.watch(this.prefs.activeProfile, () => { void this.reloadProfile(); });
   }
 
   refreshViews(): void {
@@ -195,11 +195,11 @@ export default class PinaxPlugin extends Plugin implements PinaxHost {
     if (raw.trust && activeProfile && !profileTrust[activeProfile]) {
       profileTrust[activeProfile] = normalizeTrust(raw.trust);
     }
-    this.settings = { activeProfile, profileTrust };
+    this.prefs = { activeProfile, profileTrust };
   }
 
   async saveSettings(): Promise<void> {
-    await this.saveData(this.settings);
+    await this.saveData(this.prefs);
   }
 
   async activate(): Promise<void> {
@@ -209,6 +209,6 @@ export default class PinaxPlugin extends Plugin implements PinaxHost {
       leaf = workspace.getLeaf("tab");
       await leaf.setViewState({ type: PINAX_VIEW_TYPE, active: true });
     }
-    workspace.revealLeaf(leaf);
+    await workspace.revealLeaf(leaf);
   }
 }

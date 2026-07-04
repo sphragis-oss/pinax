@@ -52,7 +52,7 @@ export const table: WidgetSpec = {
       ? (ctx.pane.columns as string[])
       : defaultColumns(rows);
 
-    const cfgSort = (ctx.pane.sort ?? null) as { by?: string; dir?: string } | null;
+    const cfgSort = ctx.pane.sort ?? null;
     let sort: SortState | null = cfgSort && cfgSort.by
       ? { by: String(cfgSort.by), dir: cfgSort.dir === "desc" ? "desc" : "asc" }
       : null;

@@ -143,7 +143,7 @@ check("window.pinax.apiVersion === 1", globalThis.window.pinax?.apiVersion === 1
 
 console.log("\n[2] sre profile reproduces the seed panes + skill row");
 {
-  check("active profile defaults to sre", plugin.settings.activeProfile === "sre");
+  check("active profile defaults to sre", plugin.prefs.activeProfile === "sre");
   const rootEl = viewRoot(plugin);
   const titles = Array.from(rootEl.querySelectorAll(".cc-pane h3")).map((h) => h.textContent);
   check("CNCF / PLATFORM RADAR pane present", titles.some((t) => t.includes("CNCF / PLATFORM RADAR")));
@@ -418,7 +418,7 @@ console.log("\n[4+9] all 11 widget types render; gates off -> placeholder, on ->
 
 console.log("\n[per-profile trust]");
 {
-  check("kitchen trust did not leak to sre", plugin.settings.profileTrust.sre.write !== true && plugin.settings.profileTrust.kitchen.write === true);
+  check("kitchen trust did not leak to sre", plugin.prefs.profileTrust.sre.write !== true && plugin.prefs.profileTrust.kitchen.write === true);
   await plugin.setActiveProfile("reading");
   await waitFor(() => viewRoot(plugin)?.textContent.includes("LIBRARY"));
   check("reading form gated despite kitchen's write trust", !viewRoot(plugin).querySelector(".px-form") && !!viewRoot(plugin).querySelector(".px-placeholder"));
@@ -532,24 +532,24 @@ console.log("\n[command palette]");
 
 console.log("\n[onboarding + deep links + duplicate profile]");
 {
-  plugin.settings.activeProfile = "";
+  plugin.prefs.activeProfile = "";
   await plugin.reloadProfile();
   await waitFor(() => !!viewRoot(plugin)?.querySelector(".px-onboard"));
   const btns = Array.from(viewRoot(plugin).querySelector(".px-onboard").querySelectorAll(".px-btn"));
   check("onboarding picker lists available profiles", btns.length >= 3 && btns.some((b) => b.textContent === "reading"), btns.map((b) => b.textContent).join(","));
   btns.find((b) => b.textContent === "reading").onclick();
-  const picked = await waitFor(() => plugin.settings.activeProfile === "reading" && viewRoot(plugin)?.textContent.includes("LIBRARY"));
+  const picked = await waitFor(() => plugin.prefs.activeProfile === "reading" && viewRoot(plugin)?.textContent.includes("LIBRARY"));
   check("onboarding pick activates the profile", picked);
 
   const handler = plugin.__protocolHandlers?.pinax;
   check("obsidian://pinax protocol handler registered", typeof handler === "function");
   handler({ profile: "helm" });
-  const linked = await waitFor(() => plugin.settings.activeProfile === "helm");
+  const linked = await waitFor(() => plugin.prefs.activeProfile === "helm");
   check("deep link with ?profile= switches profile", linked);
 
   await plugin.store.duplicate("reading", "reading-copy");
   check("duplicate copies profile.json under the new id", await app.vault.adapter.exists(".obsidian/plugins/pinax/profiles/reading-copy/profile.json"));
-  check("duplicated profile starts with zero trust", plugin.settings.profileTrust["reading-copy"] === undefined);
+  check("duplicated profile starts with zero trust", plugin.prefs.profileTrust["reading-copy"] === undefined);
   let dupErr = "";
   await plugin.store.duplicate("reading", "reading-copy").catch((e) => { dupErr = String(e); });
   check("duplicate refuses an existing id", dupErr.includes("already exists"), dupErr);

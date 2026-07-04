@@ -7,7 +7,7 @@ export interface PinaxHost {
   app: App;
   registry: WidgetRegistry;
   store: ProfileStore;
-  settings: PinaxSettings;
+  prefs: PinaxSettings;
   profile: Profile | null;
   profileErrors: string[];
   activeTrust(): TrustSettings;

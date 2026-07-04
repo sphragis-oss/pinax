@@ -31,7 +31,7 @@ export async function runCommand(app: App, cmd: string): Promise<void> {
 
   const existing = findTerminalLeaf(app);
   if (existing) {
-    app.workspace.revealLeaf(existing);
+    await app.workspace.revealLeaf(existing);
     return;
   }
   const commands = (app as unknown as { commands: { executeCommandById: (id: string) => boolean } }).commands;

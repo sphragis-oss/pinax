@@ -1,3 +1,5 @@
+import type { App } from "obsidian";
+
 export interface ThemeDef { id: string; label: string; accent: string; bg: string; }
 
 export const THEME_GROUPS: { group: string; themes: ThemeDef[] }[] = [
@@ -36,12 +38,20 @@ export function themeById(id: string): ThemeDef {
   return allThemes().find((t) => t.id === id) ?? allThemes()[0];
 }
 
-export function currentTheme(): ThemeDef {
-  return themeById(localStorage.getItem(THEME_STORAGE_KEY) || DEFAULT_THEME);
+export function getThemeId(app: App): string {
+  return (app.loadLocalStorage(THEME_STORAGE_KEY) as string | null) ?? DEFAULT_THEME;
 }
 
-export function openThemePicker(root: HTMLElement, onPick: () => void): void {
-  const cur = localStorage.getItem(THEME_STORAGE_KEY) || DEFAULT_THEME;
+export function setThemeId(app: App, id: string): void {
+  app.saveLocalStorage(THEME_STORAGE_KEY, id);
+}
+
+export function currentTheme(app: App): ThemeDef {
+  return themeById(getThemeId(app));
+}
+
+export function openThemePicker(app: App, root: HTMLElement, onPick: () => void): void {
+  const cur = getThemeId(app);
   const overlay = root.createDiv({ cls: "cc-theme-overlay cc-open" });
   const modal = overlay.createDiv({ cls: "cc-theme-modal" });
   const bar = modal.createDiv({ cls: "cc-theme-modal__bar" });
@@ -49,10 +59,10 @@ export function openThemePicker(root: HTMLElement, onPick: () => void): void {
   bar.createSpan({ text: "select theme" });
   const list = modal.createDiv({ cls: "cc-theme-list" });
 
-  const close = (): void => { overlay.remove(); document.removeEventListener("keydown", onKey); };
+  const close = (): void => { overlay.remove(); activeDocument.removeEventListener("keydown", onKey); };
   const onKey = (e: KeyboardEvent): void => { if (e.key === "Escape") close(); };
   overlay.onclick = (e) => { if (e.target === overlay) close(); };
-  document.addEventListener("keydown", onKey);
+  activeDocument.addEventListener("keydown", onKey);
 
   for (const g of THEME_GROUPS) {
     list.createDiv({ text: g.group, cls: "cc-theme-group" });
@@ -64,7 +74,7 @@ export function openThemePicker(root: HTMLElement, onPick: () => void): void {
       opt.createSpan({ text: t.label, cls: "cc-theme-opt__name" });
       if (t.id === cur) opt.createSpan({ text: "current", cls: "cc-theme-opt__cur" });
       opt.onclick = () => {
-        localStorage.setItem(THEME_STORAGE_KEY, t.id);
+        setThemeId(app, t.id);
         close();
         onPick();
       };

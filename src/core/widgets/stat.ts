@@ -33,10 +33,10 @@ function sparkline(el: HTMLElement, points: number[]): void {
   const coords = points
     .map((v, i) => `${(i * step).toFixed(1)},${(h - 2 - (v / max) * (h - 4)).toFixed(1)}`)
     .join(" ");
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  const svg = createSvg("svg");
   svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
   svg.classList.add("px-stat-spark");
-  const line = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+  const line = createSvg("polyline");
   line.setAttribute("points", coords);
   line.setAttribute("fill", "none");
   line.setAttribute("stroke", "currentColor");
@@ -61,7 +61,7 @@ export const stat: WidgetSpec = {
     const value = aggregate(rows, agg, field);
 
     const box = el.createDiv({ cls: "px-stat" });
-    const warn = (ctx.pane.warn ?? null) as { above?: number; below?: number } | null;
+    const warn = ctx.pane.warn ?? null;
     if (warn && value !== null) {
       const hit = (warn.above !== undefined && value > warn.above) || (warn.below !== undefined && value < warn.below);
       if (hit) box.addClass("px-stat-warn");

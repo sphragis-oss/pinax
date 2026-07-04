@@ -50,7 +50,7 @@ export const servicesWidget: WidgetSpec = {
     }
 
     const controls = pane.createDiv({ cls: "cc-svc-controls" });
-    const autoOn = localStorage.getItem("cc-sys-autorefresh") === "1";
+    const autoOn = ctx.app.loadLocalStorage("cc-sys-autorefresh") === "1";
     const autoBtn = controls.createEl("button", {
       cls: "cc-chip" + (autoOn ? " cc-chip-on" : ""),
       text: autoOn ? "⟳ auto 15s: on" : "⟳ auto 15s: off",
@@ -127,7 +127,7 @@ export const servicesWidget: WidgetSpec = {
     let timer: number | null = null;
     refreshBtn.onclick = () => { void rebuild(); };
     autoBtn.onclick = () => {
-      localStorage.setItem("cc-sys-autorefresh", autoOn ? "0" : "1");
+      ctx.app.saveLocalStorage("cc-sys-autorefresh", autoOn ? "0" : "1");
       ctx.refresh();
     };
 

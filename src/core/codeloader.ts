@@ -38,7 +38,8 @@ export class ProfileCodeLoader {
       },
     };
     try {
-      const fn = new Function("pinax", src);
+      // eslint-disable-next-line @typescript-eslint/no-implied-eval -- opt-in local widgets.js, per-profile "code" gate off by default, see SECURITY.md
+      const fn = new Function("pinax", src) as (api: PinaxApi) => void;
       fn(scopedApi);
       this.loadedIds = registered;
     } catch (err) {

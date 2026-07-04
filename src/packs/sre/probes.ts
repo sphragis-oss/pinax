@@ -51,7 +51,7 @@ export function dockerPs(): Promise<{ up: boolean; count: number; names: string[
     try { child = cp.spawn(shell, ["-lc", "docker ps --format '{{.Names}}'"], { env, stdio: ["ignore", "pipe", "pipe"] }); }
     catch { resolve({ up: false, count: 0, names: [] }); return; }
     let out = "";
-    child.stdout?.on("data", (d) => { out += d.toString(); });
+    child.stdout?.on("data", (d: { toString(): string }) => { out += d.toString(); });
     child.on("error", () => resolve({ up: false, count: 0, names: [] }));
     child.on("close", (code) => {
       if (code !== 0) { resolve({ up: false, count: 0, names: [] }); return; }

@@ -115,8 +115,9 @@ export async function aggregateWindow(days: number): Promise<WindowAgg | null> {
       let sIn = 0, sCc = 0, sCr = 0, sOut = 0, sWeb = 0, sCost = 0;
       for (const line of content.split("\n")) {
         if (!line.trim()) continue;
-        let rec: { message?: { model?: string; usage?: Record<string, unknown>; content?: unknown[] } };
-        try { rec = JSON.parse(line); } catch { continue; }
+        type UsageRec = { message?: { model?: string; usage?: Record<string, unknown>; content?: unknown[] } };
+        let rec: UsageRec;
+        try { rec = JSON.parse(line) as UsageRec; } catch { continue; }
         const msg = rec.message;
         if (!msg) continue;
         if (Array.isArray(msg.content)) {
@@ -128,7 +129,7 @@ export async function aggregateWindow(days: number): Promise<WindowAgg | null> {
           }
         }
         if (!msg.usage) continue;
-        const u = msg.usage as Record<string, unknown>;
+        const u = msg.usage;
         const model = msg.model ?? "unknown";
         const intok = Number(u.input_tokens ?? 0);
         const ccrea = Number(u.cache_creation_input_tokens ?? 0);
@@ -181,11 +182,10 @@ export async function aggregateWindow(days: number): Promise<WindowAgg | null> {
   return { bucket, perDay, byModel, toolCounts: toolList, topSessions, totalSessions };
 }
 
-const SVG_NS = "http://www.w3.org/2000/svg";
 
 function renderLineChart(parent: HTMLElement, points: { label: string; value: number }[]): void {
   const W = 100, H = 34, PADX = 1, PADY = 3;
-  const rootEl = parent.closest(".cc-root") as HTMLElement | null;
+  const rootEl = parent.closest(".cc-root");
   const cs = rootEl ? getComputedStyle(rootEl) : null;
   const stroke = cs?.getPropertyValue("--accent").trim() || "#ffc799";
   const vals = points.map((p) => p.value);
@@ -200,16 +200,16 @@ function renderLineChart(parent: HTMLElement, points: { label: string; value: nu
     return [x, y] as [number, number];
   });
   const poly = xy.map(([x, y]) => `${x.toFixed(2)},${y.toFixed(2)}`).join(" ");
-  const svg = document.createElementNS(SVG_NS, "svg");
+  const svg = createSvg("svg");
   svg.setAttribute("class", "cc-linechart");
   svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
   svg.setAttribute("preserveAspectRatio", "none");
-  const area = document.createElementNS(SVG_NS, "polygon");
+  const area = createSvg("polygon");
   area.setAttribute("points", `${PADX},${H} ${poly} ${(W - PADX).toFixed(2)},${H}`);
   area.setAttribute("fill", stroke + "22");
   area.setAttribute("stroke", "none");
   svg.appendChild(area);
-  const line = document.createElementNS(SVG_NS, "polyline");
+  const line = createSvg("polyline");
   line.setAttribute("points", poly);
   line.setAttribute("fill", "none");
   line.setAttribute("stroke", stroke);
@@ -218,7 +218,7 @@ function renderLineChart(parent: HTMLElement, points: { label: string; value: nu
   line.setAttribute("vector-effect", "non-scaling-stroke");
   svg.appendChild(line);
   const [lx, ly] = xy[xy.length - 1];
-  const dot = document.createElementNS(SVG_NS, "circle");
+  const dot = createSvg("circle");
   dot.setAttribute("cx", lx.toFixed(2));
   dot.setAttribute("cy", ly.toFixed(2));
   dot.setAttribute("r", "1.4");

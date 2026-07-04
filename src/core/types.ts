@@ -16,6 +16,15 @@ export interface PaneConfig {
   title?: string;
   width?: "half" | "full";
   frame?: boolean;
+  folder?: string;
+  note?: string;
+  url?: string;
+  label?: string;
+  groupBy?: string;
+  widget?: string;
+  submitLabel?: string;
+  warn?: { above?: number; below?: number };
+  sort?: { by?: string; dir?: string };
   [key: string]: unknown;
 }
 

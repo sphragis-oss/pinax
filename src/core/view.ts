@@ -2,7 +2,7 @@ import { ItemView, WorkspaceLeaf } from "obsidian";
 import type { PinaxHost } from "./host";
 import type { PaneConfig, TrustGate, WidgetCleanup } from "./types";
 import { isTrusted, gateLabel } from "./trust";
-import { currentTheme, openThemePicker, allThemes, DEFAULT_THEME, THEME_STORAGE_KEY } from "./themes";
+import { currentTheme, openThemePicker, allThemes, getThemeId, setThemeId } from "./themes";
 import { placeholderEl, errorEl } from "./ui";
 
 export const PINAX_VIEW_TYPE = "pinax-view";
@@ -26,7 +26,7 @@ export class PinaxView extends ItemView {
   getIcon(): string { return "layout-dashboard"; }
 
   async onOpen(): Promise<void> {
-    this.registerDomEvent(document, "keydown", (e) => this.onKey(e));
+    this.registerDomEvent(activeDocument, "keydown", (e: KeyboardEvent) => this.onKey(e));
     this.disposeRegistryHook = this.host.registry.onChanged(() => this.queueRender());
     await this.render();
   }
@@ -44,6 +44,11 @@ export class PinaxView extends ItemView {
       this.renderQueued = false;
       void this.render();
     }, 50);
+  }
+
+  private toggleDensity(): void {
+    const compact = this.app.loadLocalStorage("cc-density") === "compact";
+    this.app.saveLocalStorage("cc-density", compact ? null : "compact");
   }
 
   private runCleanups(): void {
@@ -66,7 +71,7 @@ export class PinaxView extends ItemView {
     if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
     if (root?.querySelector(".cc-theme-overlay") || root?.querySelector(".cc-cmdk-overlay")) return;
     if (e.key === "r") { e.preventDefault(); void this.render(); return; }
-    if (e.key === "t" && root) { e.preventDefault(); openThemePicker(root, () => void this.render()); return; }
+    if (e.key === "t" && root) { e.preventDefault(); openThemePicker(this.app, root, () => void this.render()); return; }
     const tabs = this.host.profile?.layout === "tabs" ? this.host.profile.tabs ?? [] : [];
     if (tabs.length > 0 && e.key >= "1" && e.key <= "9") {
       const tab = tabs[Number(e.key) - 1];
@@ -79,9 +84,9 @@ export class PinaxView extends ItemView {
     const root = this.containerEl.children[1] as HTMLElement;
     root.empty();
     root.addClass("cc-root", "px-root");
-    if (localStorage.getItem("cc-density") === "compact") root.addClass("cc-density-compact");
+    if (this.app.loadLocalStorage("cc-density") === "compact") root.addClass("cc-density-compact");
     else root.removeClass("cc-density-compact");
-    root.setAttribute("data-cc-theme", localStorage.getItem(THEME_STORAGE_KEY) || DEFAULT_THEME);
+    root.setAttribute("data-cc-theme", getThemeId(this.app));
 
     (this.leaf as unknown as { updateHeader?: () => void }).updateHeader?.();
 
@@ -91,7 +96,7 @@ export class PinaxView extends ItemView {
     const profile = this.host.profile;
     if (this.host.profileErrors.length > 0 || !profile) {
       const ids = await this.host.store.list();
-      if (!this.host.settings.activeProfile) {
+      if (!this.host.prefs.activeProfile) {
         this.renderOnboarding(body, ids);
         return;
       }
@@ -106,13 +111,13 @@ export class PinaxView extends ItemView {
       });
       const openBtn = box.createEl("button", { text: "Open profile.json", cls: "px-btn" });
       openBtn.onclick = () => {
-        const path = this.host.store.profilePath(this.host.settings.activeProfile);
+        const path = this.host.store.profilePath(this.host.prefs.activeProfile);
         const opener = (this.app as unknown as { openWithDefaultApp?: (p: string) => void }).openWithDefaultApp;
         if (opener) opener.call(this.app, path);
         else navigator.clipboard?.writeText(path).catch(() => { /* path shown below anyway */ });
       };
-      box.createDiv({ text: this.host.store.profilePath(this.host.settings.activeProfile), cls: "px-placeholder-msg" });
-      const others = ids.filter((i) => i !== this.host.settings.activeProfile);
+      box.createDiv({ text: this.host.store.profilePath(this.host.prefs.activeProfile), cls: "px-placeholder-msg" });
+      const others = ids.filter((i) => i !== this.host.prefs.activeProfile);
       if (others.length > 0) {
         const row = box.createDiv({ cls: "px-onboard-row" });
         for (const id of others) {
@@ -171,23 +176,22 @@ export class PinaxView extends ItemView {
     bar.createSpan({ text: `~/pinax · ${this.host.profile?.name ?? "no profile"}`, cls: "cc-hero__path" });
     const actions = bar.createDiv({ cls: "cc-hero__actions" });
 
-    const cur = currentTheme();
+    const cur = currentTheme(this.app);
     const themeBtn = actions.createEl("button", { cls: "cc-theme-btn" });
     themeBtn.createSpan({ cls: "cc-theme-btn__swatch" }).style.background = cur.accent;
     themeBtn.createSpan({ text: cur.label });
     themeBtn.title = "Switch theme (t)";
-    themeBtn.onclick = () => openThemePicker(root, () => void this.render());
+    themeBtn.onclick = () => openThemePicker(this.app, root, () => void this.render());
 
     const cmdkBtn = actions.createEl("button", { cls: "cc-theme-btn", text: "⌘K" });
     cmdkBtn.title = "Command palette (⌘K)";
     cmdkBtn.onclick = () => this.openPalette(root);
 
-    const isCompact = localStorage.getItem("cc-density") === "compact";
+    const isCompact = this.app.loadLocalStorage("cc-density") === "compact";
     const density = actions.createEl("button", { text: isCompact ? "▣" : "▤", cls: "cc-density-btn" });
     density.title = "Toggle pane density";
     density.onclick = () => {
-      if (localStorage.getItem("cc-density") === "compact") localStorage.removeItem("cc-density");
-      else localStorage.setItem("cc-density", "compact");
+      this.toggleDensity();
       void this.render();
     };
 
@@ -203,19 +207,18 @@ export class PinaxView extends ItemView {
       items.push({ group: "tab", label: `Go to ${t.label}`, run: () => { this.activeTabId = t.id; void this.render(); } });
     }
     for (const id of profileIds) {
-      if (id === this.host.settings.activeProfile) continue;
+      if (id === this.host.prefs.activeProfile) continue;
       items.push({ group: "profile", label: `Switch profile: ${id}`, run: () => { void this.host.setActiveProfile(id); } });
     }
     items.push({ group: "action", label: "Refresh", run: () => void this.render() });
     items.push({
       group: "action", label: "Toggle density", run: () => {
-        if (localStorage.getItem("cc-density") === "compact") localStorage.removeItem("cc-density");
-        else localStorage.setItem("cc-density", "compact");
+        this.toggleDensity();
         void this.render();
       },
     });
     for (const t of allThemes()) {
-      items.push({ group: "theme", label: `Theme: ${t.label}`, run: () => { localStorage.setItem(THEME_STORAGE_KEY, t.id); void this.render(); } });
+      items.push({ group: "theme", label: `Theme: ${t.label}`, run: () => { setThemeId(this.app, t.id); void this.render(); } });
     }
     for (const f of this.app.vault.getMarkdownFiles()) {
       items.push({ group: "note", label: `Open ${f.path}`, run: () => void this.app.workspace.openLinkText(f.path, "", false) });
@@ -237,7 +240,7 @@ export class PinaxView extends ItemView {
 
       let filtered = items;
       let sel = 0;
-      const close = (): void => { overlay.remove(); document.removeEventListener("keydown", onKey, true); };
+      const close = (): void => { overlay.remove(); activeDocument.removeEventListener("keydown", onKey, true); };
       const run = (it: PaletteItem): void => { close(); it.run(); };
       const highlight = (): void => {
         list.querySelectorAll(".cc-cmdk-item").forEach((el, i) => el.toggleClass("cc-cmdk-sel", i === sel));
@@ -267,7 +270,7 @@ export class PinaxView extends ItemView {
       };
       overlay.onclick = (e) => { if (e.target === overlay) close(); };
       input.oninput = applyFilter;
-      document.addEventListener("keydown", onKey, true);
+      activeDocument.addEventListener("keydown", onKey, true);
       applyFilter();
       window.setTimeout(() => input.focus(), 0);
     });
@@ -349,16 +352,16 @@ export class PinaxView extends ItemView {
       if (!h3) return;
       const rawKey = (h3.textContent || "").trim().toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
       const storageKey = `cc-collapse:${rawKey}`;
-      if (localStorage.getItem(storageKey) === "1") pane.addClass("cc-collapsed");
+      if (this.app.loadLocalStorage(storageKey) === "1") pane.addClass("cc-collapsed");
       if (!h3.hasAttribute("data-cc-wired")) {
         h3.setAttribute("data-cc-wired", "1");
         h3.addEventListener("click", () => {
           if (pane.hasClass("cc-collapsed")) {
             pane.removeClass("cc-collapsed");
-            localStorage.removeItem(storageKey);
+            this.app.saveLocalStorage(storageKey, null);
           } else {
             pane.addClass("cc-collapsed");
-            localStorage.setItem(storageKey, "1");
+            this.app.saveLocalStorage(storageKey, "1");
           }
         });
       }

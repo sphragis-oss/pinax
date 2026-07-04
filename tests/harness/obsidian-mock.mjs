@@ -20,6 +20,9 @@ export function setupDom() {
   globalThis.HTMLTextAreaElement = window.HTMLTextAreaElement;
   globalThis.HTMLSelectElement = window.HTMLSelectElement;
   globalThis.localStorage = window.localStorage;
+  globalThis.activeDocument = window.document;
+  globalThis.activeWindow = window;
+  globalThis.createSvg = (tag) => window.document.createElementNS("http://www.w3.org/2000/svg", tag);
   globalThis.DOMParser = window.DOMParser;
   globalThis.getComputedStyle = window.getComputedStyle.bind(window);
   Object.defineProperty(window.navigator, "clipboard", {
@@ -222,7 +225,10 @@ class MockWorkspace {
 }
 
 export class App {
+  loadLocalStorage(key) { const v = this.localStore.get(key); return v === undefined ? null : v; }
+  saveLocalStorage(key, data) { if (data === null || data === undefined) this.localStore.delete(key); else this.localStore.set(key, data); }
   constructor() {
+    this.localStore = new Map();
     this.vault = new MockVault();
     this.viewFactories = {};
     this.workspace = new MockWorkspace(this);

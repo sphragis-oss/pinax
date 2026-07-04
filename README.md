@@ -82,6 +82,7 @@ Layout: `src/core/` is the framework (registry, profile store + hot-reload, layo
 - **Network use**: the framework makes no network requests of its own. The only network activity is user-configured and sits behind the per-profile "Web embeds" toggle: `iframe` panes and "Import from URL", both https only.
 - **Files outside the vault**: none by the framework. One bundled profile (`helm`) ships a usage widget that reads local Claude Code session logs from `~/.claude`; it is read-only, desktop-only, and degrades to a placeholder everywhere else.
 - **Telemetry**: none. The "Copy diagnostics" command only writes to your clipboard, and only when you run it.
+- **Local code execution**: a profile may ship an optional `widgets.js`; Pinax runs it only after you enable the "Custom widget code" toggle for that exact profile (OFF by default, never inherited on import). No remote code is ever fetched or executed. Rationale and mitigations: [SECURITY.md](SECURITY.md).
 
 ## Origin
 

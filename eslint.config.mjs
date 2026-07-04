@@ -3,6 +3,7 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   { ignores: ["main.js", "node_modules/**", "tests/.build/**", "docs/**", "exports/**"] },
+  { linterOptions: { reportUnusedDisableDirectives: "off" } },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

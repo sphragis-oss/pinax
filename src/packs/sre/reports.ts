@@ -58,10 +58,11 @@ async function renderReportCard(el: HTMLElement, ctx: WidgetContext, folder: TFo
   }
 
   if (lastActive) {
+    const la = lastActive;
     const note = pane.createDiv({ cls: "cc-meta" });
     note.createSpan({ text: "LAST ACTIVE", cls: "cc-muted" });
-    const link = note.createEl("a", { text: lastActive.fm.date ?? lastActive.file.basename, cls: "cc-link" });
-    link.onclick = (e) => { e.preventDefault(); ctx.openNote(lastActive!.file.path); };
+    const link = note.createEl("a", { text: la.fm.date ?? la.file.basename, cls: "cc-link" });
+    link.onclick = (e) => { e.preventDefault(); ctx.openNote(la.file.path); };
     note.createSpan({
       text: `commits ${lastActive.fm.commits_total ?? 0} · jira updated ${lastActive.fm.jira_updated ?? 0} · closed ${lastActive.fm.jira_closed ?? 0} · confluence ${lastActive.fm.confluence_touched ?? 0}`,
       cls: "cc-muted",
