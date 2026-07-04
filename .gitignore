@@ -4,5 +4,5 @@ node_modules/
 tests/.build/
 exports/
 data.json
-main.js
+/main.js
 REFACTOR.md
