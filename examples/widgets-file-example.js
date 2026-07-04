@@ -1,6 +1,6 @@
-// Example profiles/<id>/widgets.js: profile-local custom widgets.
-// Pinax executes this file with the window.pinax API bound to `pinax`,
-// ONLY after the user enables "Custom widget code" for the profile in Settings.
+// Example profiles/<id>/widgets.js for the feature/widgets-js branch ONLY.
+// Released versions of Pinax never execute this file; they store it as inert bundle data.
+// For released versions use examples/companion-widget-plugin/ instead.
 // Reference it from a pane: { "type": "custom", "widget": "myprofile.counter" }
 pinax.registerWidget("myprofile.counter", {
   render(el, ctx) {

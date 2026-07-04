@@ -462,7 +462,7 @@ console.log("\n[widget cleanup lifecycle]");
   globalThis.window.pinax.unregisterWidget("test.cleanup");
 }
 
-console.log("\n[widgets.js code gate]");
+console.log("\n[custom widgets: inert widgets.js + companion registration]");
 {
   const widgetsSrc = readFileSync(resolve(root, "examples/widgets-file-example.js"), "utf8")
     .replace(/myprofile\.counter/g, "gadgets.counter");
@@ -477,14 +477,21 @@ console.log("\n[widgets.js code gate]");
   await app.vault.adapter.write(".obsidian/plugins/pinax/profiles/gadgets/widgets.js", widgetsSrc);
   await plugin.setActiveProfile("gadgets");
   await waitFor(() => viewRoot(plugin)?.textContent.includes("COUNTER"));
-  check("widgets.js inert while code trust off -> placeholder", viewRoot(plugin).textContent.includes('"gadgets.counter" not registered'));
-  await grantTrust(plugin, "gadgets", ["code"]);
+  check("widgets.js is never executed -> placeholder", viewRoot(plugin).textContent.includes('"gadgets.counter" not registered'));
+  check("placeholder points to the companion plugin path", viewRoot(plugin).textContent.includes("companion plugin"));
+
+  globalThis.window.pinax.registerWidget("gadgets.counter", {
+    render(el, ctx) {
+      el.createDiv({ text: `entries in ${String(ctx.pane.folder ?? "crm/contacts")}/` });
+    },
+  });
   await waitFor(() => viewRoot(plugin)?.textContent.includes("entries in crm/contacts/"), 6000);
-  check("widgets.js widget renders once code trust enabled", viewRoot(plugin).textContent.includes("entries in crm/contacts/"));
+  check("companion-plugin registration renders in the custom pane", viewRoot(plugin).textContent.includes("entries in crm/contacts/"));
+  globalThis.window.pinax.unregisterWidget("gadgets.counter");
 
   const bundlePath = await plugin.store.exportBundle("gadgets");
   const bundle = JSON.parse(await app.vault.adapter.read(bundlePath));
-  check("export bundle carries widgets.js", typeof bundle.widgets === "string" && bundle.widgets.includes("gadgets.counter"));
+  check("export bundle still carries widgets.js as data", typeof bundle.widgets === "string" && bundle.widgets.includes("gadgets.counter"));
 }
 
 console.log("\n[helm profile: full seed parity tabs]");
@@ -629,7 +636,7 @@ console.log("\n[8] export -> import into a clean vault renders");
   await waitFor(() => viewRoot(cleanPlugin)?.textContent.includes("LIBRARY"));
   const rootEl = viewRoot(cleanPlugin);
   check("imported profile renders in the clean vault", rootEl.textContent.includes("LIBRARY") && rootEl.textContent.includes("Neuromancer"));
-  check("imported profile starts with zero trust", cleanPlugin.activeTrust().write === false && cleanPlugin.activeTrust().code === false);
+  check("imported profile starts with zero trust", cleanPlugin.activeTrust().write === false && cleanPlugin.activeTrust().web === false);
 
   // widgets.js bundle round-trip into the clean vault
   const gadgetBundle = await plugin.store.exportBundle("gadgets");

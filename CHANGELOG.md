@@ -2,6 +2,19 @@
 
 All notable changes to pinax are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.1.2] - 2026-07-04
+
+Removes in-vault code execution to comply with the Obsidian community review; custom widgets now come from companion plugins.
+
+### Removed
+
+- The `widgets.js` runtime loader and the "Custom widget code" trust gate. Released versions never execute code from the vault. The loader is preserved on the `feature/widgets-js` branch.
+
+### Changed
+
+- Custom widgets are registered by companion plugins via `window.pinax.registerWidget(...)`; a copy-paste template (manifest.json + main.js) ships in `examples/companion-widget-plugin/` and AUTHORING.md, written so an LLM can generate a working widget plugin from it.
+- Profile bundles still carry `widgets.js` as inert data for sharing; settings texts, SECURITY.md and README updated accordingly (three trust gates now).
+
 ## [0.1.1] - 2026-07-04
 
 Community review fixes; no user-facing feature changes.

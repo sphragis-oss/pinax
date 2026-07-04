@@ -66,7 +66,6 @@ export class PinaxSettingTab extends PluginSettingTab {
     this.trustToggle(el, "web", "Web embeds (iframe)", "Allows iframe panes to load external https:// pages inside your vault window.");
     this.trustToggle(el, "command", "Command buttons", "Allows command panes to copy shell commands to your clipboard and open a terminal. Commands are never auto-executed.");
     this.trustToggle(el, "write", "Note writing (forms)", "Allows form panes and the API to create or append notes inside configured vault folders.");
-    this.trustToggle(el, "code", "Custom widget code (widgets.js)", "DANGER: runs the JavaScript in this profile's widgets.js with full plugin access, like installing a plugin. Enable only if you wrote it or trust who did.");
 
     await this.renderPaneEditor(el);
     await this.renderShare(el, ids);
@@ -81,11 +80,7 @@ export class PinaxSettingTab extends PluginSettingTab {
         t.onChange((v) => {
           const trust = this.host.ensureTrust(this.host.prefs.activeProfile);
           trust[gate] = v;
-          void this.host.saveSettings().then(async () => {
-            // code toggle changes which widgets exist, so reload the whole profile
-            if (gate === "code") await this.host.reloadProfile();
-            this.host.refreshViews();
-          });
+          void this.host.saveSettings().then(() => this.host.refreshViews());
         });
       });
   }
@@ -222,7 +217,7 @@ export class PinaxSettingTab extends PluginSettingTab {
     let importText = "";
     const importSetting = new Setting(el)
       .setName("Import bundle")
-      .setDesc("Paste a bundle JSON exported from another vault, then import. The profile is validated first and starts with zero trust; bundled widgets.js stays inert until you enable Custom widget code.");
+      .setDesc("Paste a bundle JSON exported from another vault, then import. The profile is validated first and starts with zero trust; a bundled widgets.js is stored for sharing but never executed by this version.");
     importSetting.addTextArea((t) => {
       t.setPlaceholder('{"pinaxBundle":1,"id":"...","profile":{...}}');
       t.onChange((v) => { importText = v; });

@@ -23,7 +23,7 @@ Ask conversationally, a few questions at a time. Adapt to their answers; skip wh
 ## Emit
 
 1. Write the profile to `<vault>/.obsidian/plugins/pinax/profiles/<id>/profile.json`, following AUTHORING.md exactly (valid JSON only; always include `"schemaVersion": 1`; vault-relative paths; only the 11 widget types; `custom` panes only for widgets that exist or that you scaffold).
-2. If the user needs behavior no built-in covers, write a `widgets.js` next to the profile.json, modeled on `examples/widgets-file-example.js` (widgets registered under `<id>.<widget>` via the provided `pinax` API; return a cleanup function if the widget sets timers). Reference it from a `custom` pane and tell the user the pane stays a placeholder until they enable "Custom widget code" for this profile in Settings. That placeholder is expected and fine.
+2. If the user needs behavior no built-in covers, scaffold a companion plugin at `<vault>/.obsidian/plugins/<id>-widgets/` (manifest.json + main.js), modeled on `examples/companion-widget-plugin/` and the AUTHORING.md template (widgets registered under `<id>.<widget>` via `window.pinax.registerWidget`; return a cleanup function if the widget sets timers). Reference it from a `custom` pane and tell the user to enable the companion plugin in Settings, then Community plugins; until then the pane shows a placeholder, which is expected and fine.
 3. Validate: run `node scripts/validate-profile.mjs profiles/<id>/profile.json` from the plugin folder. If it fails, fix the profile and re-validate before showing it to the user. Do not deliver an invalid profile.
 4. Tell the user:
    - Open Settings → Pinax and select the `<id>` profile.

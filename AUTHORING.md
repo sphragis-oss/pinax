@@ -204,17 +204,64 @@ Aggregates notes into a single figure. `agg`: `count` (default), or `sum`/`avg`/
 
 `widget` is a namespaced id (must contain a dot). If nothing is registered under that id, Pinax shows a friendly placeholder (never a crash) and renders the widget as soon as it registers. `config` is passed through to the widget.
 
-Widgets come from two places:
-1. Any plugin or script calling `window.pinax.registerWidget(...)`.
-2. A `widgets.js` file next to the profile's `profile.json` (see below), gated by the **code** trust toggle.
+Widgets come from **companion plugins**: any Obsidian plugin calling `window.pinax.registerWidget(...)`. The next section is a complete, copy-paste template.
 
-## Profile-local widgets (widgets.js)
+> Note: earlier drafts loaded a profile-local `widgets.js` at runtime. The community edition of Pinax never executes code from your vault (Obsidian review policy), so `widgets.js` in bundles is carried as inert data only. The companion plugin below is the supported path.
 
-A profile folder may contain `widgets.js`. Pinax executes it with the API bound to a `pinax` variable, but only after the user enables "Custom widget code" for that profile (it is real code execution, treated like installing a plugin). Export bundles carry `widgets.js` along automatically. See `examples/widgets-file-example.js` for the format; a widget that starts timers or listeners must return a cleanup function from `render`, which Pinax calls before every re-render.
+## Custom widgets via a companion plugin (copy-paste template)
+
+A companion plugin is a tiny Obsidian plugin whose only job is to register your widgets with Pinax. Anyone (or any LLM) can produce one from this template; no build step, no dependencies.
+
+1. In your vault, create the folder `.obsidian/plugins/my-pinax-widgets/`.
+2. Create `manifest.json` in it:
+
+```json
+{
+  "id": "my-pinax-widgets",
+  "name": "My Pinax Widgets",
+  "version": "1.0.0",
+  "minAppVersion": "1.8.7",
+  "description": "Custom widgets for my Pinax dashboard.",
+  "author": "you",
+  "isDesktopOnly": false
+}
+```
+
+3. Create `main.js` in it (this file IS the plugin; edit the widget id and render body):
+
+```js
+const { Plugin } = require("obsidian");
+
+module.exports = class MyPinaxWidgets extends Plugin {
+  onload() {
+    // wait until pinax has published its API
+    const tryRegister = () => {
+      if (!window.pinax) { setTimeout(tryRegister, 500); return; }
+      window.pinax.registerWidget("mine.hello", {
+        render(el, ctx) {
+          el.createDiv({ text: `Hello from ${ctx.pane.title ?? "my widget"}` });
+          // widgets with timers/listeners: return a cleanup function instead
+        },
+      });
+    };
+    tryRegister();
+  }
+  onunload() {
+    window.pinax?.unregisterWidget("mine.hello");
+  }
+};
+```
+
+4. Reload Obsidian (or toggle community plugins), enable "My Pinax Widgets" in Settings → Community plugins.
+5. Reference it from any profile with a `custom` pane: `{ "type": "custom", "widget": "mine.hello", "title": "HELLO" }`. Until the companion plugin is enabled, the pane shows a placeholder; it renders the moment the widget registers.
+
+Rules: widget ids are namespaced (`<yours>.<name>`, must contain a dot); a widget that starts timers or listeners must return a cleanup function from `render`, which Pinax calls before every re-render; `ctx` gives you `app`, `pane` (with your `config` merged in), `trust`, `refresh()` and `openNote(path)`.
+
+A ready-to-copy version of this template lives in `examples/companion-widget-plugin/`.
 
 ## Trust gates
 
-Four capabilities are **disabled by default, per profile**: `web` (iframe), `command` (command-buttons), `write` (form and API note writing), and `code` (widgets.js). A profile may freely include gated panes: while the capability is off, the pane renders a placeholder telling the user to enable it in Settings → Pinax. Trust granted to one profile never carries over to another (imported profiles always start with zero trust). Do not tell users to pre-enable anything; just mention which toggles the profile uses.
+Three capabilities are **disabled by default, per profile**: `web` (iframe), `command` (command-buttons) and `write` (form and API note writing). A profile may freely include gated panes: while the capability is off, the pane renders a placeholder telling the user to enable it in Settings → Pinax. Trust granted to one profile never carries over to another (imported profiles always start with zero trust). Do not tell users to pre-enable anything; just mention which toggles the profile uses.
 
 ## The API (window.pinax, apiVersion 1)
 

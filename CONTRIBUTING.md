@@ -4,8 +4,8 @@ Thanks for looking into pinax. Two ground rules make this codebase what it is; e
 
 ## The two invariants
 
-1. **`src/core/` and `src/main.ts` stay domain-agnostic.** No vault paths, no SRE/CRM/journal words, nothing that assumes a particular vault. `npm run check:generic` enforces this with a banned-word grep and CI fails without it. Domain-specific widgets live in `src/packs/` or in profile-local `widgets.js`.
-2. **Everything a profile can do is validated and gated.** New pane options go into `profile.schema.json` first; anything that touches the network, the clipboard, a terminal, note writing, or code execution sits behind one of the four per-profile trust gates and defaults to OFF. Never weaken path validation (`safeVaultPath`) or make a command auto-execute.
+1. **`src/core/` and `src/main.ts` stay domain-agnostic.** No vault paths, no SRE/CRM/journal words, nothing that assumes a particular vault. `npm run check:generic` enforces this with a banned-word grep and CI fails without it. Domain-specific widgets live in `src/packs/` or in companion plugins.
+2. **Everything a profile can do is validated and gated.** New pane options go into `profile.schema.json` first; anything that touches the network, the clipboard, a terminal, or note writing sits behind one of the per-profile trust gates and defaults to OFF. Released versions never execute code from the vault (Obsidian review policy; the widgets.js loader lives on the `feature/widgets-js` branch). Never weaken path validation (`safeVaultPath`) or make a command auto-execute.
 
 ## Dev setup
 

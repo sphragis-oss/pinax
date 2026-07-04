@@ -17,9 +17,8 @@ export function makeCustomWidget(registry: WidgetRegistry): WidgetSpec {
         placeholderEl(
           el,
           `widget "${id}" not registered`,
-          "Register it via window.pinax.registerWidget(id, { render }) from a plugin or script, " +
-            'or ship a widgets.js next to this profile\'s profile.json and enable "Custom widget code" in Settings → Pinax. ' +
-            "This pane will render once it exists.",
+          "Register it via window.pinax.registerWidget(id, { render }) from a companion plugin " +
+            "(see the AUTHORING guide for a copy-paste template). This pane will render once it exists.",
         );
         return;
       }

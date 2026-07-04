@@ -1,15 +1,14 @@
 import type { App, Component } from "obsidian";
 
-export type TrustGate = "web" | "command" | "write" | "code";
+export type TrustGate = "web" | "command" | "write";
 
 export interface TrustSettings {
   web: boolean;
   command: boolean;
   write: boolean;
-  code: boolean;
 }
 
-export const NO_TRUST: TrustSettings = { web: false, command: false, write: false, code: false };
+export const NO_TRUST: TrustSettings = { web: false, command: false, write: false };
 
 export interface PaneConfig {
   type: string;

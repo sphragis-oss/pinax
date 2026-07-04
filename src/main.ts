@@ -1,7 +1,6 @@
 import { Notice, Platform, Plugin, WorkspaceLeaf } from "obsidian";
 import { WidgetRegistry } from "./core/registry";
 import { ProfileStore } from "./core/profiles";
-import { ProfileCodeLoader } from "./core/codeloader";
 import { registerBuiltins } from "./core/widgets";
 import { PinaxView, PINAX_VIEW_TYPE } from "./core/view";
 import { PinaxSettingTab } from "./core/settings";
@@ -26,7 +25,6 @@ function normalizeTrust(raw: Partial<TrustSettings> | undefined): TrustSettings 
     web: raw?.web === true,
     command: raw?.command === true,
     write: raw?.write === true,
-    code: raw?.code === true,
   };
 }
 
@@ -37,7 +35,6 @@ export default class PinaxPlugin extends Plugin implements PinaxHost {
   profile: Profile | null = null;
   profileErrors: string[] = [];
   private api: PinaxApi | null = null;
-  private codeLoader = new ProfileCodeLoader(this.registry, this.store);
   private stopWatch: (() => void) | null = null;
   private liveMatcher: ((path: string) => boolean) | null = null;
   private liveTimer: number | null = null;
@@ -112,7 +109,6 @@ export default class PinaxPlugin extends Plugin implements PinaxHost {
     this.stopWatch = null;
     if (this.liveTimer !== null) window.clearTimeout(this.liveTimer);
     this.liveTimer = null;
-    this.codeLoader.unloadAll();
     if (window.pinax === this.api) delete window.pinax;
   }
 
@@ -149,7 +145,6 @@ export default class PinaxPlugin extends Plugin implements PinaxHost {
       this.profile = null;
       this.profileErrors = ["no profile is active; add one under the plugin's profiles/ folder"];
       this.liveMatcher = null;
-      this.codeLoader.unloadAll();
       this.refreshViews();
       return;
     }
@@ -157,9 +152,6 @@ export default class PinaxPlugin extends Plugin implements PinaxHost {
     this.profile = res.profile;
     this.profileErrors = res.errors;
     this.liveMatcher = res.profile ? buildMatcher(res.profile, this.app) : null;
-    if (this.api) {
-      await this.codeLoader.load(id, this.api, this.activeTrust().code);
-    }
     this.refreshViews();
   }
 

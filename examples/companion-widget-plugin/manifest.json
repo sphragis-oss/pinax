@@ -1,0 +1,9 @@
+{
+  "id": "my-pinax-widgets",
+  "name": "My Pinax Widgets",
+  "version": "1.0.0",
+  "minAppVersion": "1.8.7",
+  "description": "Custom widgets for my Pinax dashboard.",
+  "author": "you",
+  "isDesktopOnly": false
+}

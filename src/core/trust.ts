@@ -8,7 +8,6 @@ export function isTrusted(gate: TrustGate | undefined, trust: TrustSettings): bo
 export function gateLabel(gate: TrustGate): string {
   if (gate === "web") return "Web embeds";
   if (gate === "command") return "Command buttons";
-  if (gate === "code") return "Custom widget code";
   return "Note writing";
 }
 

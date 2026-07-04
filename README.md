@@ -23,13 +23,13 @@ The same codebase ships three profiles with zero code difference: an SRE command
 
 ## How it works
 
-- A **profile** = `profile.json` (layout + panes), stored at `.obsidian/plugins/pinax/profiles/<id>/`. Editing it (or its optional `widgets.js`) hot-reloads the dashboard. Profiles carry `"schemaVersion": 1` for forward migration.
+- A **profile** = `profile.json` (layout + panes), stored at `.obsidian/plugins/pinax/profiles/<id>/`. Editing it hot-reloads the dashboard. Profiles carry `"schemaVersion": 1` for forward migration.
 - **11 built-in widget types**: `folder-latest`, `folder-list`, `markdown-embed`, `table` (notes-as-records via frontmatter, paginated, optional recursive), `form` (create a note, or append to one under a heading), `command-buttons` (copy + open terminal), `iframe`, `heatmap` (GitHub-style activity calendar with streaks and day click-through), `board` (records grouped by a frontmatter field; with write trust, dragging a card between columns rewrites its frontmatter, a real kanban), `stat` (one aggregated number, optional sparkline and warn thresholds), `custom`. Path fields accept `{{today}}`, rolling `{{today-7d}}` and `{{vaultName}}` tokens; record sources read a folder or a tag set and take a `where` frontmatter filter; `table`/`board` rows carry write-gated action buttons that rewrite frontmatter in place (close a task without opening it); any pane can auto-refresh with `refreshSec`. The dashboard is **live**: editing, creating, renaming or deleting a note that a pane displays re-renders it automatically (debounced), and every frontmatter mutation (action button, board drop) shows a notice with one-click **Undo**.
 - A **public API** on `window.pinax` (apiVersion 1): `registerWidget`/`unregisterWidget`, safe vault helpers (`latestInFolder`, `listFolder`, `readNote`, `records`, `createNote`), `runCommand`. Custom widgets render in `custom` panes; unknown ids show a placeholder, never a crash. Widgets with timers return a cleanup function that Pinax runs on every re-render.
-- **Profile-local widgets**: a profile folder may ship a `widgets.js` (see `examples/widgets-file-example.js`); Pinax executes it only after the user enables "Custom widget code" for that profile.
-- **Trust boundary, per profile**: web embeds, command buttons, note writing, and custom widget code are four toggles, all OFF by default and scoped to a single profile - an imported profile never inherits trust you granted another. Command buttons only ever copy the command and open a terminal, never auto-execute. All config paths are validated to stay inside the vault.
+- **Custom widgets via companion plugins**: a 20-line Obsidian plugin registers your widget with `window.pinax.registerWidget(...)`; copy-paste template in `examples/companion-widget-plugin/` and [AUTHORING.md](AUTHORING.md). Pinax itself never executes code from your vault.
+- **Trust boundary, per profile**: web embeds, command buttons and note writing are three toggles, all OFF by default and scoped to a single profile - an imported profile never inherits trust you granted another. Command buttons only ever copy the command and open a terminal, never auto-execute. All config paths are validated to stay inside the vault.
 - **LLM authoring**: `profile.schema.json` + [AUTHORING.md](AUTHORING.md) + the bundled [`build-your-pinax`](commands/build-your-pinax.md) Claude command interview a user in natural language and emit a valid, loadable profile.
-- **Sharing**: export/import profiles as JSON bundles (including `widgets.js`) from Settings, by paste or from an https:// URL (URL fetch requires the active profile's Web embeds toggle). Community profiles live in [sphragis-oss/pinax-profiles](https://github.com/sphragis-oss/pinax-profiles).
+- **Sharing**: export/import profiles as JSON bundles from Settings, by paste or from an https:// URL (URL fetch requires the active profile's Web embeds toggle). Community profiles live in [sphragis-oss/pinax-profiles](https://github.com/sphragis-oss/pinax-profiles).
 - **18 themes**, all CSS-variable driven (press `t` in the dashboard; `⌘K` opens a command palette).
 - **Deep links**: `obsidian://pinax?profile=<id>` opens the dashboard on that profile (runbooks, Raycast, shell aliases). First open with no active profile shows a profile picker; Settings has one-click profile duplication.
 
@@ -75,14 +75,14 @@ CI runs all of the above on every push (`.github/workflows/ci.yml`); tagging `x.
 
 Contributions welcome, see [CONTRIBUTING.md](CONTRIBUTING.md). The trust model and vulnerability reporting live in [SECURITY.md](SECURITY.md); release history in [CHANGELOG.md](CHANGELOG.md).
 
-Layout: `src/core/` is the framework (registry, profile store + hot-reload, layout engine, trust, API, settings, built-in widgets) and is grep-verifiably domain-neutral. `src/packs/` holds the shipped custom widgets (`sre.*`, `reading.shelf`). `examples/` shows the external-widget and widgets.js paths.
+Layout: `src/core/` is the framework (registry, profile store + hot-reload, layout engine, trust, API, settings, built-in widgets) and is grep-verifiably domain-neutral. `src/packs/` holds the shipped custom widgets (`sre.*`, `reading.shelf`). `examples/` holds the companion-widget-plugin template.
 
 ## Disclosures
 
 - **Network use**: the framework makes no network requests of its own. The only network activity is user-configured and sits behind the per-profile "Web embeds" toggle: `iframe` panes and "Import from URL", both https only.
 - **Files outside the vault**: none by the framework. One bundled profile (`helm`) ships a usage widget that reads local Claude Code session logs from `~/.claude`; it is read-only, desktop-only, and degrades to a placeholder everywhere else.
 - **Telemetry**: none. The "Copy diagnostics" command only writes to your clipboard, and only when you run it.
-- **Local code execution**: a profile may ship an optional `widgets.js`; Pinax runs it only after you enable the "Custom widget code" toggle for that exact profile (OFF by default, never inherited on import). No remote code is ever fetched or executed. Rationale and mitigations: [SECURITY.md](SECURITY.md).
+- **Code execution**: none. Pinax never executes code from your vault or from the network; custom widgets come from separate plugins you install yourself, which register via the `window.pinax` API. Profile bundles may carry a `widgets.js` entry as inert data (for sharing with the development branch); this version stores it and never runs it. Details: [SECURITY.md](SECURITY.md).
 
 ## Origin
 
