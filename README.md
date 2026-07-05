@@ -56,7 +56,7 @@ Optional companion: the **Terminal** community plugin (`polyipseity/obsidian-ter
 | `helm` | Full multi-tab parity: hero, alerts, ops, standup, reports, system | same + `~/.claude` session logs, local service probes |
 | `reading` | Domain-agnosticism | a plain `reading/books/` folder |
 
-The `helm` profile's service probes and usage panel are desktop-only and sit behind the web/command toggles; on mobile or while gated they degrade to placeholders.
+The `helm` profile's service probes and usage panel are desktop-only and sit behind the web/command toggles; on mobile or while gated they degrade to placeholders. Probe overrides (`FIRECRAWL_URL`, `VAULT_RECALL_MODEL`) are read from the app environment: a GUI-launched Obsidian does not inherit shell exports, so set them via `launchctl setenv` (macOS) or your desktop session environment, or rely on the defaults.
 
 ## Development
 

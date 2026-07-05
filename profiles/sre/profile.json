@@ -10,7 +10,6 @@
       "buttons": [
         { "label": "Daily Note",   "command": "claude /daily-note",            "icon": "calendar",    "terminal": true },
         { "label": "Morning Scan", "command": "claude /morning-trend-scan",    "icon": "telescope",   "terminal": true },
-        { "label": "GH Trending",  "command": "claude /github-trending-radar", "icon": "trending-up", "terminal": true },
         { "label": "Vault Search", "command": "claude /vault-search",          "icon": "search" },
         { "label": "Vault Recall", "command": "claude /vault-recall",          "icon": "brain" },
         { "label": "Graphify",     "command": "claude /graphify",              "icon": "share-2" }

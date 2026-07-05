@@ -16,7 +16,6 @@
           "buttons": [
             { "label": "Daily Note",   "command": "claude /daily-note",            "icon": "calendar",    "terminal": true },
             { "label": "Morning Scan", "command": "claude /morning-trend-scan",    "icon": "telescope",   "terminal": true },
-            { "label": "GH Trending",  "command": "claude /github-trending-radar", "icon": "trending-up", "terminal": true },
             { "label": "Vault Search", "command": "claude /vault-search",          "icon": "search" },
             { "label": "Vault Recall", "command": "claude /vault-recall",          "icon": "brain" },
             { "label": "Graphify",     "command": "claude /graphify",              "icon": "share-2" }
@@ -62,7 +61,6 @@
           "frame": false,
           "width": "full",
           "buttons": [
-            { "label": "Standup Brief", "command": "claude /standup-brief",      "icon": "clipboard-list", "terminal": true },
             { "label": "Daily Note",    "command": "claude /daily-note",         "icon": "calendar",       "terminal": true },
             { "label": "Morning Scan",  "command": "claude /morning-trend-scan", "icon": "telescope",      "terminal": true },
             { "label": "Vault Recall",  "command": "claude /vault-recall",       "icon": "brain" }
@@ -80,8 +78,6 @@
           "frame": false,
           "width": "full",
           "buttons": [
-            { "label": "DR Daily",     "command": "claude /dr-daily",     "icon": "user-check",    "terminal": true },
-            { "label": "DR Weekly",    "command": "claude /dr-weekly",    "icon": "calendar-days", "terminal": true },
             { "label": "Vault Search", "command": "claude /vault-search", "icon": "search" }
           ]
         },
@@ -99,9 +95,7 @@
           "buttons": [
             { "label": "MCP Audit",       "command": "claude /mcp-audit",            "icon": "plug",           "terminal": true },
             { "label": "Vault Optimizer", "command": "claude /vault-optimizer",      "icon": "sparkles",       "terminal": true },
-            { "label": "Monthly Index",   "command": "claude /vault-monthly-index",  "icon": "calendar-range", "terminal": true },
-            { "label": "CC Releases",     "command": "claude /claude-code-releases", "icon": "package",        "terminal": true },
-            { "label": "CLOTributor",     "command": "claude /clotributor-radar",    "icon": "git-fork",       "terminal": true }
+            { "label": "Monthly Index",   "command": "claude /vault-monthly-index",  "icon": "calendar-range", "terminal": true }
           ]
         },
         { "type": "custom", "widget": "sre.services", "frame": false, "width": "full", "title": "◉ LOCAL STACK" },

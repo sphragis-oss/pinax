@@ -162,8 +162,8 @@ console.log("\n[2] sre profile reproduces the seed panes + skill row");
   await grantTrust(plugin, "sre", ["command"]);
   await waitFor(() => !!viewRoot(plugin).querySelector(".cc-skill-row"));
   const btns = Array.from(viewRoot(plugin).querySelectorAll(".cc-skill-btn .cc-skill-label")).map((e) => e.textContent);
-  check("skill row renders 6 seed buttons when command trust enabled",
-    btns.length === 6 && btns[0] === "Daily Note" && btns.includes("Graphify"), btns.join(","));
+  check("skill row renders 5 seed buttons when command trust enabled",
+    btns.length === 5 && btns[0] === "Daily Note" && btns.includes("Graphify"), btns.join(","));
   const btn = viewRoot(plugin).querySelector(".cc-skill-btn");
   btn.onclick();
   await sleep(20);

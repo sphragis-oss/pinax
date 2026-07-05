@@ -8,6 +8,11 @@ All notable changes to pinax are documented here. The format follows [Keep a Cha
 
 - `command-buttons`: optional per-button `color` (`accent`, `success`, `warning`, `danger`); theme-safe tint driven by CSS variables, neutral default unchanged.
 
+### Changed
+
+- Shipped `sre` and `helm` profiles no longer include command buttons for skills that are not publicly available (`/github-trending-radar`, `/standup-brief`, `/dr-daily`, `/dr-weekly`, `/claude-code-releases`, `/clotributor-radar`); the reader panes fed by those scan folders are unchanged.
+- README: note that probe env overrides are not inherited by a GUI-launched Obsidian.
+
 ## [0.1.3] - 2026-07-04
 
 Review-scorecard cleanup; no user-facing changes.
