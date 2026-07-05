@@ -2,6 +2,12 @@
 
 All notable changes to pinax are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- `command-buttons`: optional per-button `color` (`accent`, `success`, `warning`, `danger`); theme-safe tint driven by CSS variables, neutral default unchanged.
+
 ## [0.1.3] - 2026-07-04
 
 Review-scorecard cleanup; no user-facing changes.

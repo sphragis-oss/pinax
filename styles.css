@@ -1113,6 +1113,26 @@
   position: relative;
 }
 .cc-skill-run { border-color: var(--accent-medium); }
+.cc-skill-c-accent { --skill-c: var(--accent); }
+.cc-skill-c-success { --skill-c: var(--success); }
+.cc-skill-c-warning { --skill-c: var(--warning); }
+.cc-skill-c-danger { --skill-c: var(--danger); }
+.cc-skill-btn.cc-skill-c-accent,
+.cc-skill-btn.cc-skill-c-success,
+.cc-skill-btn.cc-skill-c-warning,
+.cc-skill-btn.cc-skill-c-danger { border-color: color-mix(in srgb, var(--skill-c) 40%, transparent); }
+.cc-skill-c-accent .cc-skill-icon,
+.cc-skill-c-success .cc-skill-icon,
+.cc-skill-c-warning .cc-skill-icon,
+.cc-skill-c-danger .cc-skill-icon,
+.cc-skill-c-accent .cc-skill-bolt,
+.cc-skill-c-success .cc-skill-bolt,
+.cc-skill-c-warning .cc-skill-bolt,
+.cc-skill-c-danger .cc-skill-bolt { color: var(--skill-c); }
+.cc-skill-btn.cc-skill-c-accent:hover,
+.cc-skill-btn.cc-skill-c-success:hover,
+.cc-skill-btn.cc-skill-c-warning:hover,
+.cc-skill-btn.cc-skill-c-danger:hover { border-color: var(--skill-c); color: var(--skill-c); }
 .cc-skill-bolt {
   position: absolute;
   top: 6px;

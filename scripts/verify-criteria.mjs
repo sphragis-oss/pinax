@@ -223,7 +223,7 @@ console.log("\n[4+9] all 11 widget types render; gates off -> placeholder, on ->
       { type: "markdown-embed", title: "K3 EMBED", note: "embed/welcome.md" },
       { type: "table", title: "K4 TABLE", width: "full", source: { folder: "crm/contacts" }, columns: ["name", "company", "stage"], sort: { by: "name", dir: "asc" } },
       { type: "form", title: "K5 FORM", target: { folder: "crm/contacts" }, fields: [{ name: "name", required: true }, { name: "stage", type: "select", options: ["lead", "won"] }] },
-      { type: "command-buttons", title: "K6 CMD", buttons: [{ label: "Echo", command: "echo hi" }] },
+      { type: "command-buttons", title: "K6 CMD", buttons: [{ label: "Echo", command: "echo hi" }, { label: "Boom", command: "echo boom", color: "danger" }] },
       { type: "iframe", title: "K7 WEB", url: "https://example.com" },
       { type: "custom", title: "K8 CUSTOM", widget: "demo.hello" },
       { type: "custom", title: "K9 UNKNOWN", widget: "nobody.registered.this" },
@@ -288,6 +288,8 @@ console.log("\n[4+9] all 11 widget types render; gates off -> placeholder, on ->
   rootEl = viewRoot(plugin);
   check("iframe renders when web enabled", rootEl.querySelector(".px-iframe")?.src === "https://example.com/");
   check("command-buttons render when command enabled", !!rootEl.querySelector(".cc-skill-btn"));
+  check("colored button carries its tint class", !!rootEl.querySelector(".cc-skill-btn.cc-skill-c-danger"));
+  check("uncolored button carries no tint class", !!rootEl.querySelector(".cc-skill-btn:not([class*='cc-skill-c-'])"));
   check("form renders when write enabled", !!rootEl.querySelector(".px-form"));
 
   // pagination

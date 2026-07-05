@@ -8,7 +8,10 @@ interface ButtonConfig {
   command: string;
   icon?: string;
   terminal?: boolean;
+  color?: string;
 }
+
+const BUTTON_COLORS = new Set(["accent", "success", "warning", "danger"]);
 
 export const commandButtons: WidgetSpec = {
   gate: "command",
@@ -21,7 +24,8 @@ export const commandButtons: WidgetSpec = {
     }
     const row = el.createDiv({ cls: "cc-skill-row" });
     for (const b of buttons) {
-      const btn = row.createEl("button", { cls: "cc-skill-btn" + (b.terminal ? " cc-skill-run" : "") });
+      const tint = b.color && BUTTON_COLORS.has(b.color) ? ` cc-skill-c-${b.color}` : "";
+      const btn = row.createEl("button", { cls: "cc-skill-btn" + (b.terminal ? " cc-skill-run" : "") + tint });
       btn.title = `Copies "${b.command}" and opens a terminal. Never auto-runs.`;
       if (b.icon) {
         const iconEl = btn.createSpan({ cls: "cc-skill-icon" });

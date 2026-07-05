@@ -140,13 +140,14 @@ Field `type`: `text` (default), `textarea`, `date`, `number`, `select` (needs `o
 
 ### 6. `command-buttons` - copy a command + open a terminal (gated: **command**)
 
-Buttons copy the command to the clipboard and open/reveal a terminal. Commands are **never auto-executed**. `icon` is a Lucide icon name; `terminal: true` only styles the button as a runnable action.
+Buttons copy the command to the clipboard and open/reveal a terminal. Commands are **never auto-executed**. `icon` is a Lucide icon name; `terminal: true` only styles the button as a runnable action. Optional `color` tints a button with a theme-safe semantic color: `"accent"`, `"success"`, `"warning"` or `"danger"` (omit for the neutral default; the tint adapts to all themes).
 
 ```json
 { "type": "command-buttons", "frame": false, "width": "full",
   "buttons": [
     { "label": "Daily Note", "command": "claude /daily-note", "icon": "calendar", "terminal": true },
-    { "label": "Search", "command": "claude /vault-search", "icon": "search" }
+    { "label": "Search", "command": "claude /vault-search", "icon": "search" },
+    { "label": "Rollback", "command": "make rollback", "icon": "undo-2", "color": "danger" }
   ] }
 ```
 

@@ -254,7 +254,8 @@
               "label": { "type": "string", "minLength": 1 },
               "command": { "type": "string", "minLength": 1 },
               "icon": { "type": "string", "description": "Lucide icon name" },
-              "terminal": { "type": "boolean", "description": "Style as a run-in-terminal button. Click always copies + opens a terminal; never auto-executes." }
+              "terminal": { "type": "boolean", "description": "Style as a run-in-terminal button. Click always copies + opens a terminal; never auto-executes." },
+              "color": { "enum": ["accent", "success", "warning", "danger"], "description": "Theme-safe button tint. Omit for the neutral default" }
             }
           }
         }
