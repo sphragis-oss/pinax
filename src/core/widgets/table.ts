@@ -83,15 +83,21 @@ export const table: WidgetSpec = {
       const headRow = tbl.createEl("thead").createEl("tr");
       for (const col of columns) {
         const th = headRow.createEl("th", { text: col, cls: "px-th-sortable" });
+        th.tabIndex = 0;
+        th.setAttribute("aria-label", `Sort by ${col}`);
         if (sort?.by === col) {
           th.createSpan({ text: sort.dir === "asc" ? " ↑" : " ↓", cls: "px-sort-arrow" });
           th.setAttribute("aria-sort", sort.dir === "asc" ? "ascending" : "descending");
         }
-        th.onclick = () => {
+        const toggleSort = (): void => {
           sort = sort?.by === col && sort.dir === "asc"
             ? { by: col, dir: "desc" }
             : { by: col, dir: "asc" };
           draw();
+        };
+        th.onclick = toggleSort;
+        th.onkeydown = (e) => {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleSort(); }
         };
       }
       if (actions.length > 0) headRow.createEl("th", { text: "" });

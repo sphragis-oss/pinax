@@ -2,6 +2,16 @@
 
 All notable changes to pinax are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- Keyboard and screen-reader support for the core UI: aria-labels on topbar buttons and the palette input, `tablist`/`tab` roles with `aria-selected`, collapsible pane headers focusable with `aria-expanded` and Enter/Space, board columns labelled and cards focusable (Enter/Space opens the note), sortable table headers operable from the keyboard.
+
+### Fixed
+
+- Live re-renders no longer reset the dashboard scroll position, and are deferred while the user is typing in an input inside the view.
+
 ## [0.1.4] - 2026-07-05
 
 ### Added

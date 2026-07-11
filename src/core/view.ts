@@ -40,10 +40,18 @@ export class PinaxView extends ItemView {
   queueRender(): void {
     if (this.renderQueued) return;
     this.renderQueued = true;
-    window.setTimeout(() => {
+    const attempt = (): void => {
+      // defer while the user is typing inside this view
+      const active = activeDocument.activeElement;
+      if (active instanceof HTMLElement && this.containerEl.contains(active)
+        && ["INPUT", "TEXTAREA", "SELECT"].includes(active.tagName)) {
+        window.setTimeout(attempt, 500);
+        return;
+      }
       this.renderQueued = false;
       void this.render();
-    }, 50);
+    };
+    window.setTimeout(attempt, 50);
   }
 
   private toggleDensity(): void {
@@ -82,6 +90,7 @@ export class PinaxView extends ItemView {
   async render(): Promise<void> {
     this.runCleanups();
     const root = this.containerEl.children[1] as HTMLElement;
+    const scrollTop = root.scrollTop;
     root.empty();
     root.addClass("cc-root", "px-root");
     if (this.app.loadLocalStorage("cc-density") === "compact") root.addClass("cc-density-compact");
@@ -134,11 +143,14 @@ export class PinaxView extends ItemView {
         this.activeTabId = tabs[0]?.id ?? null;
       }
       const bar = body.createDiv({ cls: "cc-tabs" });
+      bar.setAttribute("role", "tablist");
       for (const tab of tabs) {
         const el = bar.createEl("button", {
           text: tab.label,
           cls: "cc-tab" + (this.activeTabId === tab.id ? " cc-tab-active" : ""),
         });
+        el.setAttribute("role", "tab");
+        el.setAttribute("aria-selected", String(this.activeTabId === tab.id));
         el.onclick = () => { this.activeTabId = tab.id; void this.render(); };
       }
       const active = tabs.find((t) => t.id === this.activeTabId);
@@ -147,6 +159,7 @@ export class PinaxView extends ItemView {
       await this.renderPanes(body, profile.panes ?? []);
     }
     this.wireCollapse(root);
+    root.scrollTop = scrollTop;
   }
 
   private renderOnboarding(body: HTMLElement, ids: string[]): void {
@@ -181,15 +194,19 @@ export class PinaxView extends ItemView {
     themeBtn.createSpan({ cls: "cc-theme-btn__swatch" }).style.background = cur.accent;
     themeBtn.createSpan({ text: cur.label });
     themeBtn.title = "Switch theme (t)";
+    themeBtn.setAttribute("aria-label", `Switch theme (current: ${cur.label})`);
     themeBtn.onclick = () => openThemePicker(this.app, root, () => void this.render());
 
     const cmdkBtn = actions.createEl("button", { cls: "cc-theme-btn", text: "⌘K" });
     cmdkBtn.title = "Command palette (⌘K)";
+    cmdkBtn.setAttribute("aria-label", "Open command palette");
     cmdkBtn.onclick = () => this.openPalette(root);
 
     const isCompact = this.app.loadLocalStorage("cc-density") === "compact";
     const density = actions.createEl("button", { text: isCompact ? "▣" : "▤", cls: "cc-density-btn" });
     density.title = "Toggle pane density";
+    density.setAttribute("aria-label", "Toggle pane density");
+    density.setAttribute("aria-pressed", String(isCompact));
     density.onclick = () => {
       this.toggleDensity();
       void this.render();
@@ -197,6 +214,7 @@ export class PinaxView extends ItemView {
 
     const refresh = actions.createEl("button", { text: "↻", cls: "cc-refresh" });
     refresh.title = "Refresh (r)";
+    refresh.setAttribute("aria-label", "Refresh dashboard");
     refresh.onclick = () => { void this.render(); };
   }
 
@@ -236,6 +254,7 @@ export class PinaxView extends ItemView {
       bar.createSpan({ text: "❯", cls: "cc-hero__prompt" });
       const input = bar.createEl("input", { cls: "cc-cmdk-input" });
       input.placeholder = "jump to a tab, switch profile, open a note, switch theme…";
+      input.setAttribute("aria-label", "Command palette");
       const list = modal.createDiv({ cls: "cc-cmdk-list" });
 
       let filtered = items;
@@ -353,9 +372,12 @@ export class PinaxView extends ItemView {
       const rawKey = (h3.textContent || "").trim().toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
       const storageKey = `cc-collapse:${rawKey}`;
       if (this.app.loadLocalStorage(storageKey) === "1") pane.addClass("cc-collapsed");
+      h3.setAttribute("role", "button");
+      h3.tabIndex = 0;
+      h3.setAttribute("aria-expanded", String(!pane.hasClass("cc-collapsed")));
       if (!h3.hasAttribute("data-cc-wired")) {
         h3.setAttribute("data-cc-wired", "1");
-        h3.addEventListener("click", () => {
+        const toggle = (): void => {
           if (pane.hasClass("cc-collapsed")) {
             pane.removeClass("cc-collapsed");
             this.app.saveLocalStorage(storageKey, null);
@@ -363,6 +385,11 @@ export class PinaxView extends ItemView {
             pane.addClass("cc-collapsed");
             this.app.saveLocalStorage(storageKey, "1");
           }
+          h3.setAttribute("aria-expanded", String(!pane.hasClass("cc-collapsed")));
+        };
+        h3.addEventListener("click", toggle);
+        h3.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); }
         });
       }
     });
