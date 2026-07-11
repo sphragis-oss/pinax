@@ -52,6 +52,8 @@ export const board: WidgetSpec = {
     const actions = ctx.trust.write ? paneActions(ctx.pane) : [];
     for (const [key, items] of buckets) {
       const col = boardEl.createDiv({ cls: "px-pipeline-col" });
+      col.setAttribute("role", "group");
+      col.setAttribute("aria-label", `${key} (${items.length})`);
       if (canDrag) {
         col.ondragover = (e) => { e.preventDefault(); col.addClass("px-board-dropover"); };
         col.ondragleave = () => col.removeClass("px-board-dropover");
@@ -69,6 +71,12 @@ export const board: WidgetSpec = {
       const shown = limit > 0 ? items.slice(0, limit) : items;
       for (const r of shown) {
         const card = col.createDiv({ cls: "px-pipeline-card cc-clickable" });
+        card.tabIndex = 0;
+        card.setAttribute("role", "button");
+        card.setAttribute("aria-label", String(r.fields.name ?? r.name));
+        card.onkeydown = (e) => {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); ctx.openNote(r.path); }
+        };
         if (canDrag) {
           card.draggable = true;
           card.ondragstart = (e) => e.dataTransfer?.setData("text/plain", r.path);
