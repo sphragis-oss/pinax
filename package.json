@@ -1,6 +1,6 @@
 {
   "name": "pinax",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Pinax: domain-agnostic, LLM-buildable dashboard framework for Obsidian",
   "main": "main.js",
   "scripts": {

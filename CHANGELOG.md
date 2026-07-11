@@ -2,10 +2,11 @@
 
 All notable changes to pinax are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.1.5] - 2026-07-11
 
 ### Added
 
+- `pinax-api.d.ts`: TypeScript declarations for the `window.pinax` API (apiVersion 1). Companion plugin authors copy one file and get a typed global with autocomplete; `npm run check:api` in CI fails if the file drifts from the source types.
 - Keyboard and screen-reader support for the core UI: aria-labels on topbar buttons and the palette input, `tablist`/`tab` roles with `aria-selected`, collapsible pane headers focusable with `aria-expanded` and Enter/Space, board columns labelled and cards focusable (Enter/Space opens the note), sortable table headers operable from the keyboard.
 
 ### Fixed
