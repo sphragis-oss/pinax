@@ -20,6 +20,7 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npx tsc --noEmit
+      - run: npm run check:api
       - run: npm run lint
       - run: npm test
       - run: npm run check:generic

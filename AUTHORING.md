@@ -282,6 +282,8 @@ window.pinax.runCommand(cmd)                     // gated by the command toggle;
 
 `render(el, ctx)` receives the pane element and a context: `ctx.app` (Obsidian App), `ctx.pane` (pane config incl. merged `config`), `ctx.trust`, `ctx.refresh()`, `ctx.openNote(path)`, `ctx.component` (for `MarkdownRenderer.render`). If the widget sets intervals or listeners, return a cleanup function; Pinax calls it before every re-render and on close. See `examples/demo-widget.js`.
 
+Writing the companion in TypeScript? Copy [`pinax-api.d.ts`](pinax-api.d.ts) into your plugin source: it types `window.pinax` globally (autocomplete and checks, no `declare global` boilerplate) and only needs the `obsidian` typings your plugin already has. CI keeps the file in sync with the real API (`npm run check:api`).
+
 Style with the theme CSS variables (`--accent`, `--card-bg`, `--muted`, ...) or reuse `px-*`/`cc-*` classes so widgets follow all 18 themes.
 
 ## Worked example A - SRE command center (shipped as `profiles/sre/profile.json`)
