@@ -40,10 +40,18 @@ export class PinaxView extends ItemView {
   queueRender(): void {
     if (this.renderQueued) return;
     this.renderQueued = true;
-    window.setTimeout(() => {
+    const attempt = (): void => {
+      // defer while the user is typing inside this view
+      const active = activeDocument.activeElement;
+      if (active instanceof HTMLElement && this.containerEl.contains(active)
+        && ["INPUT", "TEXTAREA", "SELECT"].includes(active.tagName)) {
+        window.setTimeout(attempt, 500);
+        return;
+      }
       this.renderQueued = false;
       void this.render();
-    }, 50);
+    };
+    window.setTimeout(attempt, 50);
   }
 
   private toggleDensity(): void {
@@ -82,6 +90,7 @@ export class PinaxView extends ItemView {
   async render(): Promise<void> {
     this.runCleanups();
     const root = this.containerEl.children[1] as HTMLElement;
+    const scrollTop = root.scrollTop;
     root.empty();
     root.addClass("cc-root", "px-root");
     if (this.app.loadLocalStorage("cc-density") === "compact") root.addClass("cc-density-compact");
@@ -147,6 +156,7 @@ export class PinaxView extends ItemView {
       await this.renderPanes(body, profile.panes ?? []);
     }
     this.wireCollapse(root);
+    root.scrollTop = scrollTop;
   }
 
   private renderOnboarding(body: HTMLElement, ids: string[]): void {
