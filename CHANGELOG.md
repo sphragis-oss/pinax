@@ -2,6 +2,12 @@
 
 All notable changes to pinax are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+- All `createEl("div"/"span")` calls use Obsidian's `createDiv`/`createSpan` helpers; clears the 39 `prefer-create-el` warnings on the community review scorecard. No behavior change.
+
 ## [0.1.6] - 2026-07-25
 
 ### Added

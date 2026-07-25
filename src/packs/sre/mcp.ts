@@ -10,13 +10,13 @@ export const mcpWidget: WidgetSpec = {
     const folderPath = String(ctx.pane.folder ?? "raw/scans/mcp-audit");
     const files = scanFilesIn(ctx.app, folderPath);
     if (files.length === 0) {
-      pane.createEl("div", { text: "No audit reports yet. Run /mcp-audit.", cls: "cc-empty" });
+      pane.createDiv({ text: "No audit reports yet. Run /mcp-audit.", cls: "cc-empty" });
       return;
     }
     const latest = files[0];
     const entries = parseMcpAudit(await ctx.app.vault.cachedRead(latest));
     if (entries.length === 0) {
-      pane.createEl("div", { text: "Audit parsed empty. Check the file format.", cls: "cc-empty" });
+      pane.createDiv({ text: "Audit parsed empty. Check the file format.", cls: "cc-empty" });
       return;
     }
 
@@ -58,7 +58,7 @@ export const mcpWidget: WidgetSpec = {
         (mcpStatus === "all" || e.status === mcpStatus) &&
         (q === "" || (e.name + e.type + e.endpoint).toLowerCase().includes(q)));
       if (shown.length === 0) {
-        listWrap.createEl("div", { text: "No servers match", cls: "cc-empty" });
+        listWrap.createDiv({ text: "No servers match", cls: "cc-empty" });
         return;
       }
       const ul = listWrap.createEl("ul", { cls: "cc-mcp-list" });

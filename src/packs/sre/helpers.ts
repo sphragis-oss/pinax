@@ -28,10 +28,10 @@ export function metricTile(parent: HTMLElement, label: string, value: string, su
   const cls = ["cc-metric-tile"];
   if (variant === "warn") cls.push("cc-metric-warn");
   const tile = parent.createDiv({ cls: cls.join(" ") });
-  tile.createEl("div", { text: label, cls: "cc-metric-label" });
+  tile.createDiv({ text: label, cls: "cc-metric-label" });
   const valueRow = tile.createDiv({ cls: "cc-metric-value-row" });
-  valueRow.createEl("div", { text: value, cls: "cc-metric-value" });
-  tile.createEl("div", { text: sub, cls: "cc-metric-sub" });
+  valueRow.createDiv({ text: value, cls: "cc-metric-value" });
+  tile.createDiv({ text: sub, cls: "cc-metric-sub" });
 }
 
 export function openExternal(url: string): void {

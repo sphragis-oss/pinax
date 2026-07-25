@@ -5,7 +5,7 @@ import { scanFilesIn, metaFileLink, openExternal } from "./helpers";
 
 function renderTableRows(parent: HTMLElement, rows: TableRow[]): void {
   if (rows.length === 0) {
-    parent.createEl("div", { text: "(None)", cls: "cc-empty" });
+    parent.createDiv({ text: "(None)", cls: "cc-empty" });
     return;
   }
   const list = parent.createEl("ul", { cls: "cc-repo-list" });
@@ -137,7 +137,7 @@ export const scanWidget: WidgetSpec = {
     const folderPath = String(ctx.pane.folder ?? "");
     const files = scanFilesIn(ctx.app, folderPath);
     if (files.length === 0) {
-      el.createEl("div", { text: `No data at ${folderPath}/ yet. Run the scheduled radar.`, cls: "cc-empty" });
+      el.createDiv({ text: `No data at ${folderPath}/ yet. Run the scheduled radar.`, cls: "cc-empty" });
       return;
     }
     const latest = files[0];
@@ -148,7 +148,7 @@ export const scanWidget: WidgetSpec = {
     try {
       content = await ctx.app.vault.cachedRead(latest);
     } catch (err) {
-      el.createEl("div", { text: `Read error: ${String(err)}`, cls: "cc-empty" });
+      el.createDiv({ text: `Read error: ${String(err)}`, cls: "cc-empty" });
       return;
     }
 

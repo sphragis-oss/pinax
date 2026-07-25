@@ -16,7 +16,7 @@ export const shelfWidget: WidgetSpec = {
 
     const rows = await records(ctx.app, folder);
     if (rows.length === 0) {
-      el.createEl("div", { text: `No books in ${folder}/ yet. Add one with the form.`, cls: "cc-empty" });
+      el.createDiv({ text: `No books in ${folder}/ yet. Add one with the form.`, cls: "cc-empty" });
       return;
     }
 

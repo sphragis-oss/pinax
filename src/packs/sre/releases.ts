@@ -7,7 +7,7 @@ export const releasesWidget: WidgetSpec = {
     const folderPath = String(ctx.pane.folder ?? "raw/scans/claude-code-releases");
     const files = scanFilesIn(ctx.app, folderPath);
     if (files.length === 0) {
-      el.createEl("div", { text: "No scans yet. Run /claude-code-releases or wait for the daily routine.", cls: "cc-empty" });
+      el.createDiv({ text: "No scans yet. Run /claude-code-releases or wait for the daily routine.", cls: "cc-empty" });
       return;
     }
     const latest = files[0];
@@ -18,7 +18,7 @@ export const releasesWidget: WidgetSpec = {
     const text = await ctx.app.vault.cachedRead(latest);
     const releases = parseReleaseScan(text);
     if (releases.length === 0) {
-      el.createEl("div", { text: "Scan exists but no release sections parsed.", cls: "cc-empty" });
+      el.createDiv({ text: "Scan exists but no release sections parsed.", cls: "cc-empty" });
       return;
     }
     const list = el.createDiv({ cls: "cc-ccr-list" });

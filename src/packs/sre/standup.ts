@@ -9,7 +9,7 @@ export const standupWidget: WidgetSpec = {
     const folderPath = String(ctx.pane.folder ?? "raw/daily");
     const folder = ctx.app.vault.getAbstractFileByPath(folderPath);
     if (!(folder instanceof TFolder)) {
-      el.createEl("div", { text: "No daily folder yet. Run Claude /standup-brief at end of day.", cls: "cc-empty" });
+      el.createDiv({ text: "No daily folder yet. Run Claude /standup-brief at end of day.", cls: "cc-empty" });
       return;
     }
     const today = todayStr();
@@ -28,7 +28,7 @@ export const standupWidget: WidgetSpec = {
       latest = candidates[0] ?? null;
     }
     if (!latest) {
-      el.createEl("div", { text: "No standup brief yet. Run Claude /standup-brief at end of day.", cls: "cc-empty" });
+      el.createDiv({ text: "No standup brief yet. Run Claude /standup-brief at end of day.", cls: "cc-empty" });
       return;
     }
     const text = await ctx.app.vault.cachedRead(latest);
@@ -83,12 +83,12 @@ export const standupWidget: WidgetSpec = {
     if (planActions.length > 0 || blockActions.length > 0) {
       const pane = ownPane(el, "✎ PLAN + BLOCKERS");
       if (planActions.length > 0) {
-        pane.createEl("div", { text: "Plan for tomorrow", cls: "cc-muted cc-platform-note" });
+        pane.createDiv({ text: "Plan for tomorrow", cls: "cc-muted cc-platform-note" });
         const ul = pane.createEl("ul", { cls: "cc-platform-actions" });
         for (const a of planActions) ul.createEl("li", { text: a });
       }
       if (blockActions.length > 0) {
-        pane.createEl("div", { text: "Blockers and heads-up", cls: "cc-muted cc-platform-note" });
+        pane.createDiv({ text: "Blockers and heads-up", cls: "cc-muted cc-platform-note" });
         const ul = pane.createEl("ul", { cls: "cc-platform-actions" });
         for (const a of blockActions) ul.createEl("li", { text: a });
       }

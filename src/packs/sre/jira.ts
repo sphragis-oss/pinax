@@ -7,7 +7,7 @@ export const jiraWidget: WidgetSpec = {
     const folderPath = String(ctx.pane.folder ?? "raw/scans/jira");
     const files = scanFilesIn(ctx.app, folderPath);
     if (files.length === 0) {
-      el.createEl("div", { text: "No jira scans yet. On the work box: Claude /jira-mytickets.", cls: "cc-empty" });
+      el.createDiv({ text: "No jira scans yet. On the work box: Claude /jira-mytickets.", cls: "cc-empty" });
       return;
     }
     const latest = files[0];
@@ -36,7 +36,7 @@ export const jiraWidget: WidgetSpec = {
 
     const groups = parseJiraScan(text);
     if (groups.length === 0) {
-      el.createEl("div", { text: "Scan parsed empty. Check file format.", cls: "cc-empty" });
+      el.createDiv({ text: "Scan parsed empty. Check file format.", cls: "cc-empty" });
       return;
     }
 

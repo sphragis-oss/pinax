@@ -9,7 +9,7 @@ export const platformWidget: WidgetSpec = {
     const folderPath = String(ctx.pane.folder ?? "raw/scans/platform");
     const files = scanFilesIn(ctx.app, folderPath);
     if (files.length === 0) {
-      el.createEl("div", { text: "No platform scans yet. On the work box: Claude /platform-state.", cls: "cc-empty" });
+      el.createDiv({ text: "No platform scans yet. On the work box: Claude /platform-state.", cls: "cc-empty" });
       return;
     }
     const latest = files[0];

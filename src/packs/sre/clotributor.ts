@@ -7,7 +7,7 @@ export const clotributorWidget: WidgetSpec = {
     const folderPath = String(ctx.pane.folder ?? "raw/scans/clotributor");
     const files = scanFilesIn(ctx.app, folderPath);
     if (files.length === 0) {
-      el.createEl("div", { text: "No scans yet. Run /clotributor-radar.", cls: "cc-empty" });
+      el.createDiv({ text: "No scans yet. Run /clotributor-radar.", cls: "cc-empty" });
       return;
     }
     const latest = files[0];
@@ -17,7 +17,7 @@ export const clotributorWidget: WidgetSpec = {
     const sections = parseScan(text);
     const tableSection = sections.find((s) => s.kind === "table" && s.rows.length > 0);
     if (!tableSection) {
-      el.createEl("div", { text: "No matching issues in the latest scan.", cls: "cc-empty" });
+      el.createDiv({ text: "No matching issues in the latest scan.", cls: "cc-empty" });
       return;
     }
     meta.createSpan({ text: `${tableSection.rows.length} candidates`, cls: "cc-muted" });

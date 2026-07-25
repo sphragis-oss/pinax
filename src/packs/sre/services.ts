@@ -45,7 +45,7 @@ export const servicesWidget: WidgetSpec = {
     pane.createEl("h3", { text: String(ctx.pane.title ?? "◉ LOCAL STACK") });
 
     if (!Platform.isDesktopApp) {
-      pane.createEl("div", { text: "Local service probes are desktop-only.", cls: "cc-empty" });
+      pane.createDiv({ text: "Local service probes are desktop-only.", cls: "cc-empty" });
       return () => { /* nothing to clean */ };
     }
 
