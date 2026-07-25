@@ -46,7 +46,7 @@ npm install && npm run build
 
 Enable community plugins in Obsidian, toggle **Pinax** on, then run **Pinax: Open dashboard** from the command palette or click the ribbon icon. On first load the bundled `sre`, `helm`, and `reading` profiles are materialized under `profiles/`; pick one in Settings → Pinax.
 
-Optional companion: the **Terminal** community plugin (`polyipseity/obsidian-terminal`) so command buttons open an integrated terminal pane.
+Optional companion: the **Terminal** community plugin (`polyipseity/obsidian-terminal`) so command buttons open an integrated terminal pane. Prefer a specific app instead (iTerm2, Ghostty, kitty, Windows Terminal, ...)? Pick it under Settings → Pinax → **Preferred terminal**; the choice is stored per device, and "Copy only" skips the terminal entirely.
 
 ## Shipped profiles
 

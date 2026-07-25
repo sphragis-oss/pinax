@@ -2,6 +2,12 @@
 
 All notable changes to pinax are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- "Preferred terminal" setting (per device): command buttons can open Terminal, iTerm2, Ghostty, kitty, Alacritty, WezTerm or Warp on macOS, Windows Terminal / cmd / PowerShell on Windows, and common Linux terminals; "Copy only" skips the terminal. Auto keeps the old behavior and now falls back to a system terminal on Windows and Linux too, instead of macOS only.
+
 ## [0.1.5] - 2026-07-11
 
 ### Added

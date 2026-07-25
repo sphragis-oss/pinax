@@ -5,7 +5,7 @@ export const notices = [];
 export const clipboard = { last: null };
 
 // mutable so the harness can simulate mobile
-export const Platform = { isDesktopApp: true, isMobileApp: false, isMobile: false, isMacOS: true };
+export const Platform = { isDesktopApp: true, isMobileApp: false, isMobile: false, isMacOS: true, isWin: false, isLinux: false };
 
 export function setupDom() {
   const dom = new JSDOM("<!doctype html><html><body></body></html>", {

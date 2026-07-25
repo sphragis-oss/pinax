@@ -1,7 +1,9 @@
-import { App, Modal, Notice, Plugin, PluginSettingTab, Setting, requestUrl } from "obsidian";
+import { App, Modal, Notice, Platform, Plugin, PluginSettingTab, Setting, requestUrl } from "obsidian";
 import type { PinaxHost } from "./host";
 import type { PaneConfig, Profile, TrustGate } from "./types";
 import { validateProfile } from "./validate";
+import { TERMINAL_PREF_KEY, currentTerminalPlatform, macAppDetected } from "./terminal";
+import { terminalChoices } from "./terminal-apps";
 import schema from "../../profile.schema.json";
 
 type PinaxPluginLike = Plugin & PinaxHost;
@@ -60,6 +62,23 @@ export class PinaxSettingTab extends PluginSettingTab {
           void this.host.setActiveProfile(v).then(() => this.redraw());
         });
       });
+
+    if (Platform.isDesktopApp) {
+      const platform = currentTerminalPlatform();
+      new Setting(el)
+        .setName("Preferred terminal")
+        .setDesc("Where command buttons open a terminal, stored per device. Auto reveals an integrated terminal plugin first, then falls back to the system terminal. Commands are only copied, never auto-executed.")
+        .addDropdown((dd) => {
+          dd.addOption("auto", "Auto");
+          dd.addOption("copy", "Copy only (no terminal)");
+          for (const c of terminalChoices(platform)) {
+            const missing = platform === "mac" && c.macApp !== undefined && !macAppDetected(c.macApp);
+            dd.addOption(c.id, missing ? `${c.label} (not found)` : c.label);
+          }
+          dd.setValue((this.app.loadLocalStorage(TERMINAL_PREF_KEY) as string | null) ?? "auto");
+          dd.onChange((v) => { this.app.saveLocalStorage(TERMINAL_PREF_KEY, v === "auto" ? null : v); });
+        });
+    }
 
     const activeId = this.host.prefs.activeProfile;
     new Setting(el).setName(`Trusted capabilities · ${activeId || "(no profile)"}`).setHeading();
