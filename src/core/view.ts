@@ -253,7 +253,7 @@ export class PinaxView extends ItemView {
       const bar = modal.createDiv({ cls: "cc-cmdk-bar" });
       bar.createSpan({ text: "❯", cls: "cc-hero__prompt" });
       const input = bar.createEl("input", { cls: "cc-cmdk-input" });
-      input.placeholder = "jump to a tab, switch profile, open a note, switch theme…";
+      input.placeholder = "Jump to a tab, switch profile, open a note, switch theme…";
       input.setAttribute("aria-label", "Command palette");
       const list = modal.createDiv({ cls: "cc-cmdk-list" });
 

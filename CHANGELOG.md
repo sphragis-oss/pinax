@@ -8,6 +8,10 @@ All notable changes to pinax are documented here. The format follows [Keep a Cha
 
 - Keyboard moves on the board: press M on a focused card to open the same move menu touch devices get, pick a column, done. Cards advertise the shortcut via `aria-keyshortcuts`.
 - Pinax settings now appear in Obsidian's settings search (1.13+), via the declarative setting definitions API; older Obsidian versions keep the imperative tab unchanged.
+
+### Changed
+
+- UI text sweep to sentence case per the Obsidian style guide (empty states, placeholders, notices, status rows); notice prefix is now "Pinax:"; the ribbon tooltip matches the "Open dashboard" command name; the live badge uppercases via CSS.
 - "Preferred terminal" setting (per device): command buttons can open Terminal, iTerm2, Ghostty, kitty, Alacritty, WezTerm or Warp on macOS, Windows Terminal / cmd / PowerShell on Windows, and common Linux terminals; "Copy only" skips the terminal. Auto keeps the old behavior and now falls back to a system terminal on Windows and Linux too, instead of macOS only.
 
 ## [0.1.5] - 2026-07-11

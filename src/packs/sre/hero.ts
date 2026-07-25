@@ -77,7 +77,7 @@ async function gatherStats(ctx: WidgetContext): Promise<HeroStats> {
 
 async function quickCapture(ctx: WidgetContext, text: string): Promise<void> {
   if (!ctx.trust.write) {
-    new Notice("pinax: enable Note writing in Settings → Pinax to capture.");
+    new Notice("Pinax: enable Note writing in Settings → Pinax to capture.");
     return;
   }
   const date = todayStr();
@@ -118,7 +118,7 @@ export const heroWidget: WidgetSpec = {
     bar.createDiv({ cls: "cc-hero__dots" });
     bar.createSpan({ text: "~/the-helm", cls: "cc-hero__path" });
     const actions = bar.createDiv({ cls: "cc-hero__actions" });
-    const badge = actions.createEl("span", { text: "● LIVE", cls: "cc-badge cc-badge-live" });
+    const badge = actions.createEl("span", { text: "● live", cls: "cc-badge cc-badge-live" });
     badge.title = "Reading vault state in real time";
 
     const bodyEl = hero.createDiv({ cls: "cc-hero__body" });
@@ -157,7 +157,7 @@ export const heroWidget: WidgetSpec = {
         dd.appendText(`${p.label} `);
         dd.createSpan({ text: p.age.label, cls: p.age.stale ? "cc-warn" : "cc-ok" });
       }
-      if (first) dd.setText("no scans yet");
+      if (first) dd.setText("No scans yet");
     });
     spec("feed", (dd) => {
       dd.appendText(`${stats.releases} releases`);
@@ -173,13 +173,13 @@ export const heroWidget: WidgetSpec = {
       dd.appendText(`${stats.projects} projects`);
     });
     spec("claude", (dd) => {
-      if (!Platform.isDesktopApp) { dd.setText("desktop only"); dd.addClass("cc-muted"); return; }
-      dd.setText("reading sessions…");
+      if (!Platform.isDesktopApp) { dd.setText("Desktop only"); dd.addClass("cc-muted"); return; }
+      dd.setText("Reading sessions…");
       dd.addClass("cc-muted");
       void aggregateWindow(7).then((agg) => {
         dd.empty();
         dd.removeClass("cc-muted");
-        if (!agg || agg.bucket.sessions === 0) { dd.setText("no local sessions in 7d"); return; }
+        if (!agg || agg.bucket.sessions === 0) { dd.setText("No local sessions in 7d"); return; }
         const fav = agg.byModel[0] ? prettyModel(agg.byModel[0].model) : "-";
         dd.createSpan({ text: fav, cls: "cc-ok" });
         dd.createSpan({ text: " favourite", cls: "cc-hero-note" });
@@ -187,16 +187,16 @@ export const heroWidget: WidgetSpec = {
         dd.appendText(`${agg.bucket.sessions} sessions`);
         dd.createSpan({ text: "·", cls: "cc-hero-sep" });
         dd.appendText(`${agg.bucket.cacheHitPct}% cache`);
-      }).catch(() => { dd.empty(); dd.setText("usage unavailable"); });
+      }).catch(() => { dd.empty(); dd.setText("Usage unavailable"); });
     });
     const probeSpec = (name: string, run: (dd: HTMLElement) => void): void => {
       spec(name, (dd) => {
-        if (!ctx.trust.web) { dd.setText("web disabled in Settings"); dd.addClass("cc-muted"); return; }
+        if (!ctx.trust.web) { dd.setText("Web disabled in settings"); dd.addClass("cc-muted"); return; }
         run(dd);
       });
     };
     probeSpec("ollama", (dd) => {
-      dd.setText("pinging…");
+      dd.setText("Pinging…");
       dd.addClass("cc-muted");
       void checkOllama().then((o) => {
         dd.empty();
@@ -211,10 +211,10 @@ export const heroWidget: WidgetSpec = {
           dd.createSpan({ text: "·", cls: "cc-hero-sep" });
           dd.appendText(`v${o.version}`);
         }
-      }).catch(() => { dd.empty(); dd.setText("check failed"); });
+      }).catch(() => { dd.empty(); dd.setText("Check failed"); });
     });
     probeSpec("firecrawl", (dd) => {
-      dd.setText("pinging…");
+      dd.setText("Pinging…");
       dd.addClass("cc-muted");
       void checkFirecrawl().then((f) => {
         dd.empty();
@@ -224,7 +224,7 @@ export const heroWidget: WidgetSpec = {
         dd.createSpan({ text: "·", cls: "cc-hero-sep" });
         dd.appendText(`localhost:${f.port}`);
         dd.createSpan({ text: " self-hosted scraper", cls: "cc-hero-note" });
-      }).catch(() => { dd.empty(); dd.setText("check failed"); });
+      }).catch(() => { dd.empty(); dd.setText("Check failed"); });
     });
 
     const side = gridEl.createDiv({ cls: "cc-hero__side" });

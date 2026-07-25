@@ -5,7 +5,7 @@ import { scanFilesIn, metaFileLink, openExternal } from "./helpers";
 
 function renderTableRows(parent: HTMLElement, rows: TableRow[]): void {
   if (rows.length === 0) {
-    parent.createEl("div", { text: "(none)", cls: "cc-empty" });
+    parent.createEl("div", { text: "(None)", cls: "cc-empty" });
     return;
   }
   const list = parent.createEl("ul", { cls: "cc-repo-list" });
@@ -164,7 +164,7 @@ export const scanWidget: WidgetSpec = {
     if (ctx.pane.tableControls === true) {
       const controls = el.createDiv({ cls: "cc-pane-controls" });
       const filter = controls.createEl("input", { cls: "cc-filter-input" });
-      filter.placeholder = "filter rows (name, lang, desc)…";
+      filter.placeholder = "Filter rows (name, lang, desc)…";
       filter.oninput = () => {
         const q = filter.value.toLowerCase();
         scanBody.querySelectorAll<HTMLElement>(".cc-repo-row").forEach((row) => {

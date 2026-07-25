@@ -103,7 +103,7 @@ async function walkForTasks(ctx: WidgetContext, folder: TFolder, exclude: string
 async function toggleTask(ctx: WidgetContext, file: TFile, item: TaskItem): Promise<void> {
   if (!item.hasCheckbox) return;
   if (!ctx.trust.write) {
-    new Notice("pinax: enable Note writing in Settings → Pinax to toggle tasks.");
+    new Notice("Pinax: enable Note writing in Settings → Pinax to toggle tasks.");
     return;
   }
   const fresh = await ctx.app.vault.read(file);

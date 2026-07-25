@@ -169,18 +169,18 @@ export class PinaxSettingTab extends PluginSettingTab {
     const id = this.host.prefs.activeProfile;
     const res = await this.host.store.read(id);
     if (!res.ok || !res.profile) {
-      new Notice(`pinax: cannot edit "${id}": ${res.errors.join("; ")}`);
+      new Notice(`Pinax: cannot edit "${id}": ${res.errors.join("; ")}`);
       return;
     }
     const panes = this.panesOf(res.profile);
     if (!panes) {
-      new Notice("pinax: profile has no editable pane list");
+      new Notice("Pinax: profile has no editable pane list");
       return;
     }
     mutate(panes);
     const check = validateProfile(res.profile);
     if (!check.ok) {
-      new Notice(`pinax: change rejected: ${check.errors.join("; ")}`);
+      new Notice(`Pinax: change rejected: ${check.errors.join("; ")}`);
       return;
     }
     try {
@@ -317,11 +317,11 @@ export class PinaxSettingTab extends PluginSettingTab {
     });
     setting.addButton((b) => b.setButtonText("Fetch + import").setDisabled(!webTrusted).onClick(() => {
       if (!this.host.activeTrust().web) {
-        new Notice("pinax: enable Web embeds for the active profile first");
+        new Notice("Pinax: enable Web embeds for the active profile first");
         return;
       }
       if (!importUrl.startsWith("https://")) {
-        new Notice("pinax: URL must start with https://");
+        new Notice("Pinax: URL must start with https://");
         return;
       }
       void requestUrl({ url: importUrl })
@@ -425,8 +425,8 @@ class PaneEditModal extends Modal {
       } else if (prop.type === "boolean") {
         setting.addDropdown((dd) => {
           dd.addOption("", "(default)");
-          dd.addOption("true", "on");
-          dd.addOption("false", "off");
+          dd.addOption("true", "On");
+          dd.addOption("false", "Off");
           dd.setValue(typeof current === "boolean" ? String(current) : "");
           readers.set(key, () => ({ value: dd.getValue() === "" ? undefined : dd.getValue() === "true" }));
         });
