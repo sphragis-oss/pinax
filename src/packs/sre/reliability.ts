@@ -9,7 +9,7 @@ export const reliabilityWidget: WidgetSpec = {
     const folderPath = String(ctx.pane.folder ?? "raw/scans/reliability");
     const files = scanFilesIn(ctx.app, folderPath);
     if (files.length === 0) {
-      el.createEl("div", { text: "No reliability scans yet. On the work box: Claude /reliability-state.", cls: "cc-empty" });
+      el.createDiv({ text: "No reliability scans yet. On the work box: Claude /reliability-state.", cls: "cc-empty" });
       return;
     }
     const latest = files[0];

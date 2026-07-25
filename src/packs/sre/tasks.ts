@@ -137,7 +137,7 @@ export const tasksWidget: WidgetSpec = {
       if (folder instanceof TFolder) await walkForTasks(ctx, folder, exclude, dailyFolders, tasks);
     }
     if (tasks.length === 0) {
-      el.createEl("div", { text: `No open tasks in ${folders.join("/ or ")}/.`, cls: "cc-empty" });
+      el.createDiv({ text: `No open tasks in ${folders.join("/ or ")}/.`, cls: "cc-empty" });
       return;
     }
 

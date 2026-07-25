@@ -13,5 +13,5 @@ export function errorEl(parent: HTMLElement, msg: string): HTMLElement {
 }
 
 export function emptyEl(parent: HTMLElement, msg: string): HTMLElement {
-  return parent.createEl("div", { text: msg, cls: "cc-empty" });
+  return parent.createDiv({ text: msg, cls: "cc-empty" });
 }

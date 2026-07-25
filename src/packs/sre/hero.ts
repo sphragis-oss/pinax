@@ -118,7 +118,7 @@ export const heroWidget: WidgetSpec = {
     bar.createDiv({ cls: "cc-hero__dots" });
     bar.createSpan({ text: "~/the-helm", cls: "cc-hero__path" });
     const actions = bar.createDiv({ cls: "cc-hero__actions" });
-    const badge = actions.createEl("span", { text: "● live", cls: "cc-badge cc-badge-live" });
+    const badge = actions.createSpan({ text: "● live", cls: "cc-badge cc-badge-live" });
     badge.title = "Reading vault state in real time";
 
     const bodyEl = hero.createDiv({ cls: "cc-hero__body" });

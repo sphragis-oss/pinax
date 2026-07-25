@@ -50,7 +50,7 @@ export const form: WidgetSpec = {
     const target = (ctx.pane.target ?? {}) as FormTarget;
     const fields = (Array.isArray(ctx.pane.fields) ? ctx.pane.fields : []) as FieldConfig[];
     if ((!target.folder && !target.note) || fields.length === 0) {
-      el.createEl("div", { text: "form pane needs target.folder (create) or target.note (append), plus fields[]", cls: "cc-empty" });
+      el.createDiv({ text: "form pane needs target.folder (create) or target.note (append), plus fields[]", cls: "cc-empty" });
       return;
     }
 

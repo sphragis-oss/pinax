@@ -251,18 +251,18 @@ export const usageWidget: WidgetSpec = {
 
     const redraw = async (): Promise<void> => {
       container.empty();
-      container.createEl("div", { text: "Aggregating…", cls: "cc-muted" });
+      container.createDiv({ text: "Aggregating…", cls: "cc-muted" });
       if (!Platform.isDesktopApp) {
         container.empty();
-        container.createEl("div", { text: "Usage reads local session logs; desktop only.", cls: "cc-empty" });
+        container.createDiv({ text: "Usage reads local session logs; desktop only.", cls: "cc-empty" });
         return;
       }
       let agg: WindowAgg | null;
       try { agg = await aggregateWindow(usageDays); }
-      catch (err) { container.empty(); container.createEl("div", { text: `Read error: ${String(err)}`, cls: "cc-empty" }); return; }
+      catch (err) { container.empty(); container.createDiv({ text: `Read error: ${String(err)}`, cls: "cc-empty" }); return; }
       container.empty();
       if (!agg || agg.bucket.sessions === 0) {
-        container.createEl("div", { text: `No local sessions in last ${usageDays}d.`, cls: "cc-empty" });
+        container.createDiv({ text: `No local sessions in last ${usageDays}d.`, cls: "cc-empty" });
         return;
       }
 

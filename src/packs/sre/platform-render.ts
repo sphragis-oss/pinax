@@ -32,13 +32,13 @@ export function platformStatusPill(td: HTMLElement, raw: string): void {
 
 export function renderPlatformSection(parent: HTMLElement, sec: PlatformSection, pillColumns: string[] = []): void {
   if (sec.tables.length === 0 && sec.notes.length === 0) {
-    parent.createEl("div", { text: "(No data)", cls: "cc-empty" });
+    parent.createDiv({ text: "(No data)", cls: "cc-empty" });
     return;
   }
   const noteQueue = [...sec.notes];
   for (const t of sec.tables) {
     const noteForThisTable = noteQueue.shift();
-    if (noteForThisTable) parent.createEl("div", { text: noteForThisTable, cls: "cc-muted cc-platform-note" });
+    if (noteForThisTable) parent.createDiv({ text: noteForThisTable, cls: "cc-muted cc-platform-note" });
     const tbl = parent.createEl("table", { cls: "cc-platform-table" });
     const thead = tbl.createEl("thead");
     const headRow = thead.createEl("tr");
@@ -65,7 +65,7 @@ export function renderPlatformSection(parent: HTMLElement, sec: PlatformSection,
   }
   while (noteQueue.length > 0) {
     const n = noteQueue.shift()!;
-    parent.createEl("div", { text: n, cls: "cc-muted cc-platform-note" });
+    parent.createDiv({ text: n, cls: "cc-muted cc-platform-note" });
   }
 }
 

@@ -39,7 +39,7 @@ async function renderReportCard(el: HTMLElement, ctx: WidgetContext, folder: TFo
     metricTile(row, "JIRA TOUCHED", wfm.jira_updated ?? "0", "PROD/SRE/SYS");
     metricTile(row, "CONFLUENCE", wfm.confluence_touched ?? "0", "pages edited");
   } else {
-    pane.createEl("div", { text: "No weekly file yet. Run /dr-weekly.", cls: "cc-empty" });
+    pane.createDiv({ text: "No weekly file yet. Run /dr-weekly.", cls: "cc-empty" });
   }
 
   let lastActive: { file: TFile; fm: Record<string, string> } | null = null;
@@ -98,7 +98,7 @@ export const reportsWidget: WidgetSpec = {
     const root = ctx.app.vault.getAbstractFileByPath(rootPath);
     if (!(root instanceof TFolder)) {
       const empty = ownPane(el, "▸ DIRECT REPORTS");
-      empty.createEl("div", { text: `No direct-reports project at ${rootPath}/. Scaffold the folder and run /dr-daily.`, cls: "cc-empty" });
+      empty.createDiv({ text: `No direct-reports project at ${rootPath}/. Scaffold the folder and run /dr-daily.`, cls: "cc-empty" });
       return;
     }
 
@@ -107,7 +107,7 @@ export const reportsWidget: WidgetSpec = {
     );
     if (slugFolders.length === 0) {
       const empty = ownPane(el, "▸ DIRECT REPORTS");
-      empty.createEl("div", { text: "No reports configured.", cls: "cc-empty" });
+      empty.createDiv({ text: "No reports configured.", cls: "cc-empty" });
       return;
     }
 

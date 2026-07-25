@@ -58,12 +58,12 @@ export const projectsWidget: WidgetSpec = {
     const folderPath = String(ctx.pane.folder ?? "projects");
     const root = ctx.app.vault.getAbstractFileByPath(folderPath);
     if (!(root instanceof TFolder)) {
-      el.createEl("div", { text: `No ${folderPath}/ folder.`, cls: "cc-empty" });
+      el.createDiv({ text: `No ${folderPath}/ folder.`, cls: "cc-empty" });
       return;
     }
     const subs = root.children.filter((f): f is TFolder => f instanceof TFolder);
     if (subs.length === 0) {
-      el.createEl("div", { text: `No active projects. Create ${folderPath}/<scope>/<name>/ to populate.`, cls: "cc-empty" });
+      el.createDiv({ text: `No active projects. Create ${folderPath}/<scope>/<name>/ to populate.`, cls: "cc-empty" });
       return;
     }
 
