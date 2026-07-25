@@ -397,6 +397,7 @@ export class Menu {
     return this;
   }
   showAtMouseEvent() {}
+  showAtPosition() {}
 }
 
 export class Notice {

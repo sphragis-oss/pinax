@@ -416,6 +416,16 @@ console.log("\n[4+9] all 11 widget types render; gates off -> placeholder, on ->
   check("move menu rewrites groupBy like drag & drop", movedMobile);
   mock.Platform.isMobile = false;
   await plugin.app.workspace.getLeavesOfType("pinax-view")[0].view.render();
+
+  // keyboard fallback: M on a focused card opens the same move menu
+  const kbCard = Array.from(viewRoot(plugin).querySelectorAll(".px-pipeline-card")).find((c) => c.textContent.includes("Ada Lovelace"));
+  check("board cards advertise the move shortcut", kbCard?.getAttribute("aria-keyshortcuts") === "M");
+  kbCard.onkeydown({ key: "m", preventDefault() {} });
+  const kbMenu = mock.Menu.last;
+  check("M opens a move menu listing the other columns", kbMenu.items.some((i) => i.title === "qualified") && !kbMenu.items.some((i) => i.title === "won"), kbMenu.items.map((i) => i.title).join(","));
+  kbMenu.items.find((i) => i.title === "qualified").__onClick();
+  const movedKb = await waitFor(async () => (await app.vault.adapter.read("crm/contacts/Ada Lovelace.md")).includes("stage: qualified"));
+  check("keyboard move rewrites groupBy like drag & drop", movedKb);
 }
 
 console.log("\n[per-profile trust]");
