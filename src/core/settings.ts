@@ -1,4 +1,5 @@
 import { App, Modal, Notice, Platform, Plugin, PluginSettingTab, Setting, requestUrl } from "obsidian";
+import type { SettingDefinitionItem } from "obsidian";
 import type { PinaxHost } from "./host";
 import type { PaneConfig, Profile, TrustGate } from "./types";
 import { validateProfile } from "./validate";
@@ -31,6 +32,26 @@ function paneDefFor(type: string): PaneDef | null {
   return null;
 }
 
+const GATES: TrustGate[] = ["web", "command", "write"];
+
+const TRUST_INTRO = "Trust is granted per profile and every toggle starts OFF. A newly imported profile never inherits trust you gave another one. Only enable capabilities for profiles you trust.";
+
+const GATE_META: Record<TrustGate, { name: string; desc: string }> = {
+  web: { name: "Web embeds (iframe)", desc: "Allows iframe panes to load external https:// pages inside your vault window." },
+  command: { name: "Command buttons", desc: "Allows command panes to copy shell commands to your clipboard and open a terminal. Commands are never auto-executed." },
+  write: { name: "Note writing (forms)", desc: "Allows form panes and the API to create or append notes inside configured vault folders." },
+};
+
+const ROW = {
+  profile: { name: "Active profile", desc: "Profiles live in the plugin folder under profiles/<id>/profile.json and hot-reload on edit." },
+  terminal: { name: "Preferred terminal", desc: "Where command buttons open a terminal, stored per device. Auto reveals an integrated terminal plugin first, then falls back to the system terminal. Commands are only copied, never auto-executed." },
+  export: { name: "Export bundle", desc: "Writes a shareable JSON bundle (profile.json + widgets.js if present) into the plugin folder under exports/." },
+  duplicate: { name: "Duplicate active profile", desc: "Copies the active profile (profile.json + widgets.js) under a new id, the easiest way to start your own from a bundled one. The copy starts with zero trust." },
+  import: { name: "Import bundle", desc: "Paste a bundle JSON exported from another vault, then import. The profile is validated first and starts with zero trust; a bundled widgets.js is stored for sharing but never executed by this version." },
+  importUrl: { name: "Import from URL", desc: "Fetches a profile bundle JSON from an https:// URL (e.g. a raw GitHub link in sphragis-oss/pinax-profiles) and imports it. The imported profile starts with zero trust." },
+  panes: { name: "Pane editor", desc: "Reorder, edit, add or remove panes of the active profile." },
+};
+
 export class PinaxSettingTab extends PluginSettingTab {
   private host: PinaxPluginLike;
   private editTabId: string | null = null;
@@ -40,8 +61,38 @@ export class PinaxSettingTab extends PluginSettingTab {
     this.host = plugin;
   }
 
+  // declarative path (Obsidian 1.13+): rendered from definitions, indexed for settings search
+  getSettingDefinitions(): SettingDefinitionItem[] {
+    const activeId = this.host.prefs.activeProfile || "(no profile)";
+    return [
+      { name: ROW.profile.name, desc: ROW.profile.desc, render: (s: Setting) => this.buildActiveProfile(s) },
+      { name: ROW.terminal.name, desc: ROW.terminal.desc, visible: () => Platform.isDesktopApp, render: (s: Setting) => this.buildTerminal(s) },
+      { type: "group", heading: `Trusted capabilities · ${activeId}`, items: [
+        { name: "", desc: TRUST_INTRO, searchable: false },
+        ...GATES.map((gate) => ({ name: GATE_META[gate].name, desc: GATE_META[gate].desc, render: (s: Setting) => this.buildTrustGate(s, gate) })),
+      ] },
+      { type: "group", heading: `Panes · ${activeId}`, items: [
+        // group is a SettingGroup; structural type because listEl is 1.11+ and this path only runs on 1.13+
+        { name: ROW.panes.name, desc: ROW.panes.desc, render: (s: Setting, group: { listEl: HTMLElement }) => { s.settingEl.hide(); void this.paneEditorBody(group.listEl); } },
+      ] },
+      { type: "group", heading: "Share profiles", items: [
+        { name: ROW.export.name, desc: ROW.export.desc, render: (s: Setting) => this.buildExport(s) },
+        { name: ROW.duplicate.name, desc: ROW.duplicate.desc, render: (s: Setting) => this.buildDuplicate(s) },
+        { name: ROW.import.name, desc: ROW.import.desc, render: (s: Setting) => this.buildImport(s) },
+        { name: ROW.importUrl.name, desc: ROW.importUrl.desc, render: (s: Setting) => this.buildImportUrl(s) },
+      ] },
+    ];
+  }
+
+  // imperative fallback for Obsidian < 1.13; not called when definitions are supported
   display(): void {
     this.redraw();
+  }
+
+  private refreshTab(): void {
+    const maybe = this as { update?: () => void };
+    if (typeof maybe.update === "function") maybe.update();
+    else this.redraw();
   }
 
   private redraw(): void {
@@ -51,61 +102,59 @@ export class PinaxSettingTab extends PluginSettingTab {
 
   private async renderAsync(): Promise<void> {
     const el = this.containerEl;
-    const ids = await this.host.store.list();
-    new Setting(el)
-      .setName("Active profile")
-      .setDesc("Profiles live in the plugin folder under profiles/<id>/profile.json and hot-reload on edit.")
-      .addDropdown((dd) => {
-        for (const id of ids) dd.addOption(id, id);
-        dd.setValue(this.host.prefs.activeProfile);
-        dd.onChange((v) => {
-          void this.host.setActiveProfile(v).then(() => this.redraw());
-        });
-      });
-
-    if (Platform.isDesktopApp) {
-      const platform = currentTerminalPlatform();
-      new Setting(el)
-        .setName("Preferred terminal")
-        .setDesc("Where command buttons open a terminal, stored per device. Auto reveals an integrated terminal plugin first, then falls back to the system terminal. Commands are only copied, never auto-executed.")
-        .addDropdown((dd) => {
-          dd.addOption("auto", "Auto");
-          dd.addOption("copy", "Copy only (no terminal)");
-          for (const c of terminalChoices(platform)) {
-            const missing = platform === "mac" && c.macApp !== undefined && !macAppDetected(c.macApp);
-            dd.addOption(c.id, missing ? `${c.label} (not found)` : c.label);
-          }
-          dd.setValue((this.app.loadLocalStorage(TERMINAL_PREF_KEY) as string | null) ?? "auto");
-          dd.onChange((v) => { this.app.saveLocalStorage(TERMINAL_PREF_KEY, v === "auto" ? null : v); });
-        });
-    }
+    this.buildActiveProfile(new Setting(el));
+    if (Platform.isDesktopApp) this.buildTerminal(new Setting(el));
 
     const activeId = this.host.prefs.activeProfile;
     new Setting(el).setName(`Trusted capabilities · ${activeId || "(no profile)"}`).setHeading();
-    el.createEl("p", {
-      text: "Trust is granted per profile and every toggle starts OFF. A newly imported profile never inherits trust you gave another one. Only enable capabilities for profiles you trust.",
-      cls: "setting-item-description",
-    });
-    this.trustToggle(el, "web", "Web embeds (iframe)", "Allows iframe panes to load external https:// pages inside your vault window.");
-    this.trustToggle(el, "command", "Command buttons", "Allows command panes to copy shell commands to your clipboard and open a terminal. Commands are never auto-executed.");
-    this.trustToggle(el, "write", "Note writing (forms)", "Allows form panes and the API to create or append notes inside configured vault folders.");
+    el.createEl("p", { text: TRUST_INTRO, cls: "setting-item-description" });
+    for (const gate of GATES) this.buildTrustGate(new Setting(el), gate);
 
-    await this.renderPaneEditor(el);
-    await this.renderShare(el, ids);
+    new Setting(el).setName(`Panes · ${activeId || "(no profile)"}`).setHeading();
+    await this.paneEditorBody(el);
+
+    new Setting(el).setName("Share profiles").setHeading();
+    this.buildExport(new Setting(el));
+    this.buildDuplicate(new Setting(el));
+    this.buildImport(new Setting(el));
+    this.buildImportUrl(new Setting(el));
   }
 
-  private trustToggle(el: HTMLElement, gate: TrustGate, name: string, desc: string): void {
-    new Setting(el)
-      .setName(name)
-      .setDesc(desc)
-      .addToggle((t) => {
-        t.setValue(this.host.activeTrust()[gate]);
-        t.onChange((v) => {
-          const trust = this.host.ensureTrust(this.host.prefs.activeProfile);
-          trust[gate] = v;
-          void this.host.saveSettings().then(() => this.host.refreshViews());
-        });
+  private buildActiveProfile(setting: Setting): void {
+    setting.setName(ROW.profile.name).setDesc(ROW.profile.desc).addDropdown((dd) => {
+      void this.host.store.list().then((ids) => {
+        for (const id of ids) dd.addOption(id, id);
+        dd.setValue(this.host.prefs.activeProfile);
       });
+      dd.onChange((v) => {
+        void this.host.setActiveProfile(v).then(() => this.refreshTab());
+      });
+    });
+  }
+
+  private buildTerminal(setting: Setting): void {
+    const platform = currentTerminalPlatform();
+    setting.setName(ROW.terminal.name).setDesc(ROW.terminal.desc).addDropdown((dd) => {
+      dd.addOption("auto", "Auto");
+      dd.addOption("copy", "Copy only (no terminal)");
+      for (const c of terminalChoices(platform)) {
+        const missing = platform === "mac" && c.macApp !== undefined && !macAppDetected(c.macApp);
+        dd.addOption(c.id, missing ? `${c.label} (not found)` : c.label);
+      }
+      dd.setValue((this.app.loadLocalStorage(TERMINAL_PREF_KEY) as string | null) ?? "auto");
+      dd.onChange((v) => { this.app.saveLocalStorage(TERMINAL_PREF_KEY, v === "auto" ? null : v); });
+    });
+  }
+
+  private buildTrustGate(setting: Setting, gate: TrustGate): void {
+    setting.setName(GATE_META[gate].name).setDesc(GATE_META[gate].desc).addToggle((t) => {
+      t.setValue(this.host.activeTrust()[gate]);
+      t.onChange((v) => {
+        const trust = this.host.ensureTrust(this.host.prefs.activeProfile);
+        trust[gate] = v;
+        void this.host.saveSettings().then(() => this.host.refreshViews());
+      });
+    });
   }
 
   private panesOf(profile: Profile): PaneConfig[] | null {
@@ -141,12 +190,11 @@ export class PinaxSettingTab extends PluginSettingTab {
       return;
     }
     await this.host.reloadProfile();
-    this.redraw();
+    this.refreshTab();
   }
 
-  private async renderPaneEditor(el: HTMLElement): Promise<void> {
+  private async paneEditorBody(el: HTMLElement): Promise<void> {
     const id = this.host.prefs.activeProfile;
-    new Setting(el).setName(`Panes · ${id || "(no profile)"}`).setHeading();
     const res = id ? await this.host.store.read(id) : null;
     if (!res || !res.ok || !res.profile) {
       el.createEl("p", { text: "Active profile is missing or invalid; fix it before editing panes.", cls: "setting-item-description" });
@@ -160,7 +208,7 @@ export class PinaxSettingTab extends PluginSettingTab {
       new Setting(el).setName("Tab").addDropdown((dd) => {
         for (const t of tabs) dd.addOption(t.id, t.label);
         if (this.editTabId) dd.setValue(this.editTabId);
-        dd.onChange((v) => { this.editTabId = v; this.redraw(); });
+        dd.onChange((v) => { this.editTabId = v; this.refreshTab(); });
       });
     }
 
@@ -201,16 +249,15 @@ export class PinaxSettingTab extends PluginSettingTab {
       }));
   }
 
-  private async renderShare(el: HTMLElement, ids: string[]): Promise<void> {
-    new Setting(el).setName("Share profiles").setHeading();
-
-    let exportId = this.host.prefs.activeProfile || ids[0] || "";
-    new Setting(el)
-      .setName("Export bundle")
-      .setDesc("Writes a shareable JSON bundle (profile.json + widgets.js if present) into the plugin folder under exports/.")
+  private buildExport(setting: Setting): void {
+    let exportId = this.host.prefs.activeProfile;
+    setting.setName(ROW.export.name).setDesc(ROW.export.desc)
       .addDropdown((dd) => {
-        for (const id of ids) dd.addOption(id, id);
-        if (exportId) dd.setValue(exportId);
+        void this.host.store.list().then((ids) => {
+          for (const id of ids) dd.addOption(id, id);
+          if (!exportId) exportId = ids[0] ?? "";
+          if (exportId) dd.setValue(exportId);
+        });
         dd.onChange((v) => { exportId = v; });
       })
       .addButton((b) => b.setButtonText("Export").onClick(() => {
@@ -218,11 +265,11 @@ export class PinaxSettingTab extends PluginSettingTab {
           .then((path) => new Notice(`Exported to ${path}`))
           .catch((err) => new Notice(String(err)));
       }));
+  }
 
+  private buildDuplicate(setting: Setting): void {
     let dupId = "";
-    new Setting(el)
-      .setName("Duplicate active profile")
-      .setDesc("Copies the active profile (profile.json + widgets.js) under a new id, the easiest way to start your own from a bundled one. The copy starts with zero trust.")
+    setting.setName(ROW.duplicate.name).setDesc(ROW.duplicate.desc)
       .addText((t) => {
         t.setPlaceholder("new-profile-id");
         t.onChange((v) => { dupId = v.trim(); });
@@ -232,43 +279,43 @@ export class PinaxSettingTab extends PluginSettingTab {
           .then(async () => {
             new Notice(`Duplicated to "${dupId}"`);
             await this.host.setActiveProfile(dupId);
-            this.redraw();
+            this.refreshTab();
           })
           .catch((err) => new Notice(String(err)));
       }));
+  }
 
+  private buildImport(setting: Setting): void {
     let importText = "";
-    const importSetting = new Setting(el)
-      .setName("Import bundle")
-      .setDesc("Paste a bundle JSON exported from another vault, then import. The profile is validated first and starts with zero trust; a bundled widgets.js is stored for sharing but never executed by this version.");
-    importSetting.addTextArea((t) => {
+    setting.setName(ROW.import.name).setDesc(ROW.import.desc);
+    setting.addTextArea((t) => {
       t.setPlaceholder('{"pinaxBundle":1,"id":"...","profile":{...}}');
       t.onChange((v) => { importText = v; });
       t.inputEl.rows = 4;
     });
-    importSetting.addButton((b) => b.setButtonText("Import").setCta().onClick(() => {
+    setting.addButton((b) => b.setButtonText("Import").setCta().onClick(() => {
       void this.host.store.importBundle(importText)
         .then(async (id) => {
           new Notice(`Imported profile "${id}"`);
           await this.host.setActiveProfile(id);
-          this.redraw();
+          this.refreshTab();
         })
         .catch((err) => new Notice(String(err)));
     }));
+  }
 
+  private buildImportUrl(setting: Setting): void {
     const webTrusted = this.host.activeTrust().web;
     let importUrl = "";
-    const urlSetting = new Setting(el)
-      .setName("Import from URL")
-      .setDesc(webTrusted
-        ? "Fetches a profile bundle JSON from an https:// URL (e.g. a raw GitHub link in sphragis-oss/pinax-profiles) and imports it. The imported profile starts with zero trust."
-        : "Disabled: turn on Web embeds for the active profile to fetch bundles from the web. Imported profiles always start with zero trust.");
-    urlSetting.addText((t) => {
+    setting.setName(ROW.importUrl.name).setDesc(webTrusted
+      ? ROW.importUrl.desc
+      : "Disabled: turn on Web embeds for the active profile to fetch bundles from the web. Imported profiles always start with zero trust.");
+    setting.addText((t) => {
       t.setPlaceholder("https://raw.githubusercontent.com/.../x.pinax-profile.json");
       t.onChange((v) => { importUrl = v.trim(); });
       t.inputEl.disabled = !webTrusted;
     });
-    urlSetting.addButton((b) => b.setButtonText("Fetch + import").setDisabled(!webTrusted).onClick(() => {
+    setting.addButton((b) => b.setButtonText("Fetch + import").setDisabled(!webTrusted).onClick(() => {
       if (!this.host.activeTrust().web) {
         new Notice("pinax: enable Web embeds for the active profile first");
         return;
@@ -282,7 +329,7 @@ export class PinaxSettingTab extends PluginSettingTab {
           const id = await this.host.store.importBundle(res.text);
           new Notice(`Imported profile "${id}"`);
           await this.host.setActiveProfile(id);
-          this.redraw();
+          this.refreshTab();
         })
         .catch((err) => new Notice(String(err)));
     }));
