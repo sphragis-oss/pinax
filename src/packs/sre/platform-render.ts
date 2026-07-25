@@ -32,7 +32,7 @@ export function platformStatusPill(td: HTMLElement, raw: string): void {
 
 export function renderPlatformSection(parent: HTMLElement, sec: PlatformSection, pillColumns: string[] = []): void {
   if (sec.tables.length === 0 && sec.notes.length === 0) {
-    parent.createEl("div", { text: "(no data)", cls: "cc-empty" });
+    parent.createEl("div", { text: "(No data)", cls: "cc-empty" });
     return;
   }
   const noteQueue = [...sec.notes];

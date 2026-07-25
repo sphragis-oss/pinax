@@ -9,7 +9,7 @@ export const standupWidget: WidgetSpec = {
     const folderPath = String(ctx.pane.folder ?? "raw/daily");
     const folder = ctx.app.vault.getAbstractFileByPath(folderPath);
     if (!(folder instanceof TFolder)) {
-      el.createEl("div", { text: "No daily folder yet. Run claude /standup-brief at end of day.", cls: "cc-empty" });
+      el.createEl("div", { text: "No daily folder yet. Run Claude /standup-brief at end of day.", cls: "cc-empty" });
       return;
     }
     const today = todayStr();
@@ -28,7 +28,7 @@ export const standupWidget: WidgetSpec = {
       latest = candidates[0] ?? null;
     }
     if (!latest) {
-      el.createEl("div", { text: "No standup brief yet. Run claude /standup-brief at end of day.", cls: "cc-empty" });
+      el.createEl("div", { text: "No standup brief yet. Run Claude /standup-brief at end of day.", cls: "cc-empty" });
       return;
     }
     const text = await ctx.app.vault.cachedRead(latest);

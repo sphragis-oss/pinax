@@ -20,7 +20,7 @@ export const alertsWidget: WidgetSpec = {
 
     const guardedRun = (cmd: string): void => {
       if (!ctx.trust.command) {
-        new Notice('pinax: enable "Command buttons" in Settings → Pinax to use alert actions.');
+        new Notice('Pinax: enable "Command buttons" in Settings → Pinax to use alert actions.');
         return;
       }
       void runCommand(ctx.app, cmd);

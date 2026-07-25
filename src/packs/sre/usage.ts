@@ -251,7 +251,7 @@ export const usageWidget: WidgetSpec = {
 
     const redraw = async (): Promise<void> => {
       container.empty();
-      container.createEl("div", { text: "aggregating…", cls: "cc-muted" });
+      container.createEl("div", { text: "Aggregating…", cls: "cc-muted" });
       if (!Platform.isDesktopApp) {
         container.empty();
         container.createEl("div", { text: "Usage reads local session logs; desktop only.", cls: "cc-empty" });

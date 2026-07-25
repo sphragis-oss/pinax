@@ -7,7 +7,7 @@ export const jiraWidget: WidgetSpec = {
     const folderPath = String(ctx.pane.folder ?? "raw/scans/jira");
     const files = scanFilesIn(ctx.app, folderPath);
     if (files.length === 0) {
-      el.createEl("div", { text: "No jira scans yet. On the work box: claude /jira-mytickets.", cls: "cc-empty" });
+      el.createEl("div", { text: "No jira scans yet. On the work box: Claude /jira-mytickets.", cls: "cc-empty" });
       return;
     }
     const latest = files[0];

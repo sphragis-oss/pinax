@@ -11,6 +11,17 @@ async function moveCard(ctx: WidgetContext, path: string, groupBy: string, value
   ctx.refresh();
 }
 
+function moveMenu(ctx: WidgetContext, groupBy: string, keys: string[], fromKey: string, path: string): Menu {
+  const menu = new Menu();
+  for (const target of keys) {
+    if (target === fromKey) continue;
+    menu.addItem((item) => item.setTitle(target).onClick(() => {
+      void moveCard(ctx, path, groupBy, target).catch((err) => console.error("pinax: board move failed", err));
+    }));
+  }
+  return menu;
+}
+
 export const board: WidgetSpec = {
   defaults: { source: { folder: "notes" }, groupBy: "status" },
   async render(el: HTMLElement, ctx: WidgetContext): Promise<void> {
@@ -76,9 +87,16 @@ export const board: WidgetSpec = {
         card.setAttribute("aria-label", String(r.fields.name ?? r.name));
         card.onkeydown = (e) => {
           if (e.key === "Enter" || e.key === " ") { e.preventDefault(); ctx.openNote(r.path); }
+          // M opens the same move menu the touch fallback uses
+          if (canDrag && (e.key === "m" || e.key === "M")) {
+            e.preventDefault();
+            const rect = card.getBoundingClientRect();
+            moveMenu(ctx, groupBy, Array.from(buckets.keys()), key, r.path).showAtPosition({ x: rect.left, y: rect.bottom });
+          }
         };
         if (canDrag) {
           card.draggable = true;
+          card.setAttribute("aria-keyshortcuts", "M");
           card.ondragstart = (e) => e.dataTransfer?.setData("text/plain", r.path);
         }
         // touch screens get no HTML5 drag events, so offer a move menu instead
@@ -86,14 +104,7 @@ export const board: WidgetSpec = {
           const moveBtn = card.createEl("button", { text: "⇄ move", cls: "px-btn px-action-btn px-board-move" });
           moveBtn.onclick = (e) => {
             e.stopPropagation();
-            const menu = new Menu();
-            for (const target of buckets.keys()) {
-              if (target === key) continue;
-              menu.addItem((item) => item.setTitle(target).onClick(() => {
-                void moveCard(ctx, r.path, groupBy, target).catch((err) => console.error("pinax: board move failed", err));
-              }));
-            }
-            menu.showAtMouseEvent(e);
+            moveMenu(ctx, groupBy, Array.from(buckets.keys()), key, r.path).showAtMouseEvent(e);
           };
         }
         card.createDiv({ text: String(r.fields.name ?? r.name), cls: "px-pipeline-name" });

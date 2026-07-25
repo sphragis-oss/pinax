@@ -66,7 +66,7 @@ export const heatmap: WidgetSpec = {
           cell.addClass("cc-clickable");
           cell.onclick = () => ctx.openNote(path);
         } else if (!dateField && folder !== "" && ctx.trust.write) {
-          cell.title += " (click to create)";
+          cell.title += " (Click to create)";
           cell.addClass("cc-clickable");
           cell.onclick = () => {
             void ctx.app.vault

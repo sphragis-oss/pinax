@@ -34,7 +34,7 @@ export const mcpWidget: WidgetSpec = {
 
     const controls = pane.createDiv({ cls: "cc-pane-controls" });
     const filter = controls.createEl("input", { cls: "cc-filter-input" });
-    filter.placeholder = "filter servers (name, type, endpoint)…";
+    filter.placeholder = "Filter servers (name, type, endpoint)…";
     const chips = controls.createDiv({ cls: "cc-chip-row" });
     const chipEls = new Map<string, HTMLElement>();
     for (const st of statuses) {
@@ -58,7 +58,7 @@ export const mcpWidget: WidgetSpec = {
         (mcpStatus === "all" || e.status === mcpStatus) &&
         (q === "" || (e.name + e.type + e.endpoint).toLowerCase().includes(q)));
       if (shown.length === 0) {
-        listWrap.createEl("div", { text: "no servers match", cls: "cc-empty" });
+        listWrap.createEl("div", { text: "No servers match", cls: "cc-empty" });
         return;
       }
       const ul = listWrap.createEl("ul", { cls: "cc-mcp-list" });
@@ -88,7 +88,7 @@ export const mcpWidget: WidgetSpec = {
             };
           }
           const cmd = `claude mcp remove ${e.name} -s user`;
-          const rmBtn = li.createEl("button", { text: "remove", cls: "cc-mcp-rm" });
+          const rmBtn = li.createEl("button", { text: "Remove", cls: "cc-mcp-rm" });
           rmBtn.title = `Copy: ${cmd}`;
           rmBtn.onclick = async () => {
             try { await navigator.clipboard.writeText(cmd); new Notice(`Copied: ${cmd}`); }

@@ -61,7 +61,7 @@ export const table: WidgetSpec = {
     if (ctx.pane.filter !== false) {
       const controls = el.createDiv({ cls: "cc-pane-controls" });
       const input = controls.createEl("input", { cls: "cc-filter-input" });
-      input.placeholder = "filter rows…";
+      input.placeholder = "Filter rows…";
       input.oninput = () => { query = input.value.toLowerCase(); visible = pageSize; draw(); };
     }
 

@@ -353,7 +353,7 @@ console.log("\n[4+9] all 11 widget types render; gates off -> placeholder, on ->
     app.workspace.opened.length === openedBefore + 1 && app.workspace.opened.at(-1).startsWith("bulk/items/"),
     app.workspace.opened.at(-1));
   const emptyCell = Array.from(viewRoot(plugin).querySelectorAll(".px-heat-0")).find((c) => typeof c.onclick === "function");
-  check("heatmap empty day offers create when write trusted", !!emptyCell && emptyCell.title.includes("click to create"), emptyCell?.title);
+  check("heatmap empty day offers create when write trusted", !!emptyCell && emptyCell.title.includes("Click to create"), emptyCell?.title);
   if (emptyCell) {
     const day = emptyCell.title.split(":")[0];
     emptyCell.onclick();
@@ -416,6 +416,16 @@ console.log("\n[4+9] all 11 widget types render; gates off -> placeholder, on ->
   check("move menu rewrites groupBy like drag & drop", movedMobile);
   mock.Platform.isMobile = false;
   await plugin.app.workspace.getLeavesOfType("pinax-view")[0].view.render();
+
+  // keyboard fallback: M on a focused card opens the same move menu
+  const kbCard = Array.from(viewRoot(plugin).querySelectorAll(".px-pipeline-card")).find((c) => c.textContent.includes("Ada Lovelace"));
+  check("board cards advertise the move shortcut", kbCard?.getAttribute("aria-keyshortcuts") === "M");
+  kbCard.onkeydown({ key: "m", preventDefault() {} });
+  const kbMenu = mock.Menu.last;
+  check("M opens a move menu listing the other columns", kbMenu.items.some((i) => i.title === "qualified") && !kbMenu.items.some((i) => i.title === "won"), kbMenu.items.map((i) => i.title).join(","));
+  kbMenu.items.find((i) => i.title === "qualified").__onClick();
+  const movedKb = await waitFor(async () => (await app.vault.adapter.read("crm/contacts/Ada Lovelace.md")).includes("stage: qualified"));
+  check("keyboard move rewrites groupBy like drag & drop", movedKb);
 }
 
 console.log("\n[per-profile trust]");
@@ -504,7 +514,7 @@ console.log("\n[helm profile: full seed parity tabs]");
   const tabs = Array.from(rootEl.querySelectorAll(".cc-tab")).map((t) => t.textContent);
   check("5 seed tabs render", tabs.join(",") === "OVERVIEW,OPS,STANDUP,REPORTS,SYSTEM", tabs.join(","));
   check("hero renders (logo + specs)", !!rootEl.querySelector(".cc-hero__neofetch") && rootEl.textContent.includes("ClaudeVault"));
-  check("hero probes gated while web off", rootEl.textContent.includes("web disabled in Settings"));
+  check("hero probes gated while web off", rootEl.textContent.includes("Web disabled in settings"));
   check("alert bar renders", !!rootEl.querySelector(".cc-alert-bar"));
   check("overview panes render inside tab", Array.from(rootEl.querySelectorAll(".cc-pane h3")).some((h) => h.textContent.includes("CNCF / PLATFORM RADAR")));
 
@@ -660,7 +670,7 @@ console.log("\n[mobile simulation: bundle loads without node builtins]");
   await mobilePlugin.activate();
   await waitFor(() => !!viewRoot(mobilePlugin)?.querySelector(".cc-tabs"), 6000);
   check("plugin boots and helm renders with mobile Platform flags", !!viewRoot(mobilePlugin)?.querySelector(".cc-hero__neofetch"));
-  check("hero usage row degrades to desktop-only note", viewRoot(mobilePlugin).textContent.includes("desktop only"));
+  check("hero usage row degrades to desktop-only note", viewRoot(mobilePlugin).textContent.includes("Desktop only"));
   mobilePlugin.onunload();
   mock.Platform.isDesktopApp = true;
   mock.Platform.isMobile = false;

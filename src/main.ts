@@ -49,7 +49,7 @@ export default class PinaxPlugin extends Plugin implements PinaxHost {
     window.pinax = this.api;
 
     this.registerView(PINAX_VIEW_TYPE, (leaf) => new PinaxView(leaf, this));
-    this.addRibbonIcon("layout-dashboard", "Open Pinax", () => { void this.activate(); });
+    this.addRibbonIcon("layout-dashboard", "Open dashboard", () => { void this.activate(); });
     this.addCommand({ id: "open", name: "Open dashboard", callback: () => { void this.activate(); } });
     this.addCommand({ id: "copy-diagnostics", name: "Copy diagnostics", callback: () => { void this.copyDiagnostics(); } });
     this.addSettingTab(new PinaxSettingTab(this.app, this));
