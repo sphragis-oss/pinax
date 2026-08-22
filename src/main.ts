@@ -159,10 +159,11 @@ export default class PinaxPlugin extends Plugin implements PinaxHost {
   async setActiveProfile(id: string): Promise<void> {
     this.prefs.activeProfile = id;
     await this.saveSettings();
-    await this.reloadProfile();
-    // a profile can carry its look; manual theme switches still win afterwards
-    const t = this.profile?.theme;
+    // a profile can carry its look; apply before the re-render so the view paints with it
+    const res = await this.store.read(id);
+    const t = res.profile?.theme;
     if (t && allThemes().some((x) => x.id === t)) setThemeId(this.app, t);
+    await this.reloadProfile();
     this.startWatch();
   }
 
