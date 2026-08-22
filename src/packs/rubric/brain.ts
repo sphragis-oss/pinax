@@ -5,7 +5,12 @@ import { placeholderEl } from "../../core/ui";
 interface GraphNode { id: string; label?: string; community?: number; source_file?: string; }
 interface GraphJson { nodes?: GraphNode[]; links?: unknown[]; }
 
-interface Point { x: number; y: number; hue: number; dust: boolean; label: string; source: string; }
+interface Point {
+  x: number; y: number; z: number;
+  hue: number; light: number; size: number;
+  dust: boolean; label: string; source: string;
+  sx: number; sy: number; depth: number;
+}
 
 // deterministic 32-bit hash for stable per-node placement
 function hash(s: string): number {
@@ -16,8 +21,7 @@ function hash(s: string): number {
 
 function unit(h: number): number { return ((h % 100000) + 0.5) / 100001; }
 
-// gaussian pair from two hash-derived uniforms
-function gauss(id: string): [number, number] {
+function gaussPair(id: string): [number, number] {
   const u1 = unit(hash(id));
   const u2 = unit(hash(id + "g"));
   const r = Math.sqrt(-2 * Math.log(u1));
@@ -25,10 +29,11 @@ function gauss(id: string): [number, number] {
 }
 
 const GOLDEN = Math.PI * (3 - Math.sqrt(5));
-const HUES = [28, 168, 262, 200, 325, 45, 2, 150, 215, 90, 285, 20];
+// warm-biased hues that sit well on the rubric orange chrome
+const HUES = [25, 175, 350, 210, 45, 320, 150, 260, 15, 190, 300, 35];
 const DUST_MIN = 6;
 
-// big communities cluster around a dense core; tiny ones become background dust
+// 3D nebula: cluster centers on a fibonacci ball, nodes gaussian around them, tiny communities become dust
 function layout(nodes: GraphNode[]): Point[] {
   const byCommunity = new Map<number, GraphNode[]>();
   for (const n of nodes) {
@@ -44,29 +49,51 @@ function layout(nodes: GraphNode[]): Point[] {
   const points: Point[] = [];
 
   clusters.forEach((members, gi) => {
-    const spread = gi === 0 ? 0 : 0.72 * Math.sqrt((gi + 0.3) / clusters.length);
-    const cx = spread * Math.cos(gi * GOLDEN);
-    const cy = spread * Math.sin(gi * GOLDEN);
-    const clusterR = 0.07 + 0.19 * Math.sqrt(members.length / biggest);
+    const fy = 1 - 2 * ((gi + 0.5) / clusters.length);
+    const fr = Math.sqrt(Math.max(0, 1 - fy * fy));
+    const fa = gi * GOLDEN;
+    const dist = gi === 0 ? 0 : 0.35 + 0.55 * Math.sqrt(gi / clusters.length);
+    const cx = fr * Math.cos(fa) * dist;
+    const cy = fy * dist;
+    const cz = fr * Math.sin(fa) * dist;
+    const sigma = 0.09 + 0.20 * Math.sqrt(members.length / biggest);
     const hue = HUES[gi % HUES.length];
     for (const n of members) {
-      const [gx, gy] = gauss(n.id);
-      let x = cx + gx * clusterR * 0.45;
-      let y = cy + gy * clusterR * 0.45;
-      const d = Math.sqrt(x * x + y * y);
-      if (d > 0.98) { x *= 0.98 / d; y *= 0.98 / d; }
-      points.push({ x, y, hue, dust: false, label: n.label ?? n.id, source: n.source_file ?? "" });
+      const [g1, g2] = gaussPair(n.id);
+      const [g3] = gaussPair(n.id + "z");
+      let x = cx + g1 * sigma, y = cy + g2 * sigma, z = cz + g3 * sigma;
+      const d = Math.sqrt(x * x + y * y + z * z);
+      if (d > 0.98) { const s = 0.98 / d; x *= s; y *= s; z *= s; }
+      const h = hash(n.id + "v");
+      points.push({
+        x, y, z, hue: hue + (h % 17) - 8,
+        light: 52 + (h % 19), size: 1.1 + 1.5 * unit(hash(n.id + "s")),
+        dust: false, label: n.label ?? n.id, source: n.source_file ?? "",
+        sx: 0, sy: 0, depth: 0,
+      });
     }
   });
   for (const n of dust) {
-    const a = unit(hash(n.id)) * Math.PI * 2;
-    const r = Math.sqrt(unit(hash(n.id + "d")));
+    const [g1, g2] = gaussPair(n.id);
+    const [g3] = gaussPair(n.id + "z");
+    const len = Math.sqrt(g1 * g1 + g2 * g2 + g3 * g3) || 1;
+    const r = Math.cbrt(unit(hash(n.id + "d")));
     points.push({
-      x: r * Math.cos(a), y: r * Math.sin(a),
-      hue: 35, dust: true, label: n.label ?? n.id, source: n.source_file ?? "",
+      x: (g1 / len) * r, y: (g2 / len) * r, z: (g3 / len) * r,
+      hue: 35, light: 60, size: 1,
+      dust: true, label: n.label ?? n.id, source: n.source_file ?? "",
+      sx: 0, sy: 0, depth: 0,
     });
   }
   return points;
+}
+
+function accentRgb(el: HTMLElement): [number, number, number] {
+  const v = getComputedStyle(el).getPropertyValue("--accent").trim();
+  const m = v.match(/^#([0-9a-f]{6})$/i);
+  if (!m) return [255, 122, 47];
+  const n = parseInt(m[1], 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
 
 interface RingItem { title: string; icon: string; path: string; url: string; }
@@ -119,6 +146,7 @@ export const brainWidget: WidgetSpec = {
       return;
     }
     const points = layout(nodes);
+    const order = points.map((_, i) => i);
     const communities = new Set(nodes.map((n) => n.community ?? -1)).size;
 
     const wrap = el.createDiv({ cls: "px-brain" });
@@ -167,11 +195,10 @@ export const brainWidget: WidgetSpec = {
     const geometry = (): { w: number; h: number; cx: number; cy: number; R: number } => {
       const w = canvas.clientWidth;
       const h = canvas.clientHeight;
-      return { w, h, cx: w / 2, cy: h * 0.52, R: Math.min(w, h) * 0.36 };
+      return { w, h, cx: w / 2, cy: h * 0.53, R: Math.min(w, h) * 0.37 };
     };
 
-    const accent = (): string => getComputedStyle(wrap).getPropertyValue("--accent").trim() || "#ff7a2f";
-
+    // rotate around Y, project, sort back-to-front, shade by depth
     const draw = (): void => {
       const dpr = window.devicePixelRatio || 1;
       const { w, h, cx, cy, R } = geometry();
@@ -185,8 +212,15 @@ export const brainWidget: WidgetSpec = {
       g.setTransform(dpr, 0, 0, dpr, 0, 0);
       g.clearRect(0, 0, w, h);
 
-      const Rr = R * 1.15;
-      g.strokeStyle = accent();
+      const [ar, ag, ab] = accentRgb(wrap);
+      const glow = g.createRadialGradient(cx, cy, 0, cx, cy, R * 1.05);
+      glow.addColorStop(0, `rgba(${ar}, ${ag}, ${ab}, 0.07)`);
+      glow.addColorStop(1, "rgba(0, 0, 0, 0)");
+      g.fillStyle = glow;
+      g.fillRect(cx - R * 1.1, cy - R * 1.1, R * 2.2, R * 2.2);
+
+      const Rr = R * 1.22;
+      g.strokeStyle = `rgb(${ar}, ${ag}, ${ab})`;
       g.globalAlpha = 0.14;
       g.lineWidth = 1;
       g.beginPath();
@@ -196,20 +230,34 @@ export const brainWidget: WidgetSpec = {
 
       const cos = Math.cos(angle), sin = Math.sin(angle);
       for (const p of points) {
-        const x = cx + (p.x * cos - p.y * sin) * R;
-        const y = cy + (p.x * sin + p.y * cos) * R;
+        const rx = p.x * cos + p.z * sin;
+        const rz = -p.x * sin + p.z * cos;
+        p.sx = cx + rx * R;
+        p.sy = cy + p.y * R * 0.94;
+        p.depth = (rz + 1) / 2;
+      }
+      order.sort((a, b) => points[a].depth - points[b].depth);
+
+      for (const i of order) {
+        const p = points[i];
+        const d = p.depth;
         if (p.dust) {
-          g.fillStyle = "hsla(35, 25%, 72%, 0.28)";
-          g.fillRect(x, y, 1.2, 1.2);
+          g.fillStyle = `hsla(35, 22%, 70%, ${0.10 + 0.16 * d})`;
+          g.fillRect(p.sx, p.sy, 1.1, 1.1);
           continue;
         }
-        g.fillStyle = `hsla(${p.hue}, 70%, 60%, 0.15)`;
+        const size = p.size * (0.55 + 0.65 * d);
+        const alpha = 0.30 + 0.62 * d;
+        if (d > 0.6) {
+          g.fillStyle = `hsla(${p.hue}, 68%, ${p.light}%, ${0.10 + 0.08 * d})`;
+          g.beginPath();
+          g.arc(p.sx, p.sy, size * 2.7, 0, Math.PI * 2);
+          g.fill();
+        }
+        const lit = p === hover ? 88 : p.light + 14 * d;
+        g.fillStyle = `hsla(${p.hue}, 70%, ${lit}%, ${p === hover ? 1 : alpha})`;
         g.beginPath();
-        g.arc(x, y, 4.2, 0, Math.PI * 2);
-        g.fill();
-        g.fillStyle = `hsla(${p.hue}, 72%, ${p === hover ? 86 : 64}%, 0.95)`;
-        g.beginPath();
-        g.arc(x, y, p === hover ? 3.2 : 1.7, 0, Math.PI * 2);
+        g.arc(p.sx, p.sy, p === hover ? size + 1.6 : size, 0, Math.PI * 2);
         g.fill();
       }
 
@@ -230,18 +278,15 @@ export const brainWidget: WidgetSpec = {
     const ro = new ResizeObserver(() => { if (reduceMotion) draw(); });
     ro.observe(canvas);
 
+    // pick the nearest front-half projected point
     const hit = (ev: MouseEvent): Point | null => {
       const rect = canvas.getBoundingClientRect();
-      const { cx, cy, R } = geometry();
       const mx = ev.clientX - rect.left, my = ev.clientY - rect.top;
-      const cos = Math.cos(angle), sin = Math.sin(angle);
       let best: Point | null = null;
       let bestD = 90;
       for (const p of points) {
-        if (p.dust) continue;
-        const x = cx + (p.x * cos - p.y * sin) * R;
-        const y = cy + (p.x * sin + p.y * cos) * R;
-        const d = (x - mx) * (x - mx) + (y - my) * (y - my);
+        if (p.dust || p.depth < 0.35) continue;
+        const d = (p.sx - mx) * (p.sx - mx) + (p.sy - my) * (p.sy - my);
         if (d < bestD) { bestD = d; best = p; }
       }
       return best;
