@@ -3,11 +3,13 @@ import type { WidgetContext, WidgetSpec } from "../../core/types";
 import { placeholderEl } from "../../core/ui";
 
 interface GraphNode { id: string; label?: string; community?: number; source_file?: string; }
-interface GraphJson { nodes?: GraphNode[]; links?: unknown[]; }
+interface GraphLink { source?: unknown; target?: unknown; }
+interface GraphJson { nodes?: GraphNode[]; links?: GraphLink[]; }
 
 interface Point {
+  id: string;
   x: number; y: number; z: number;
-  hue: number; light: number; size: number;
+  hue: number; light: number; size: number; tw: number;
   dust: boolean; label: string; source: string;
   sx: number; sy: number; depth: number;
 }
@@ -66,8 +68,10 @@ function layout(nodes: GraphNode[]): Point[] {
       if (d > 0.98) { const s = 0.98 / d; x *= s; y *= s; z *= s; }
       const h = hash(n.id + "v");
       points.push({
+        id: n.id,
         x, y, z, hue: hue + (h % 17) - 8,
         light: 52 + (h % 19), size: 1.1 + 1.5 * unit(hash(n.id + "s")),
+        tw: unit(hash(n.id + "t")) < 0.07 ? (h % 628) / 100 : -1,
         dust: false, label: n.label ?? n.id, source: n.source_file ?? "",
         sx: 0, sy: 0, depth: 0,
       });
@@ -79,8 +83,9 @@ function layout(nodes: GraphNode[]): Point[] {
     const len = Math.sqrt(g1 * g1 + g2 * g2 + g3 * g3) || 1;
     const r = Math.cbrt(unit(hash(n.id + "d")));
     points.push({
+      id: n.id,
       x: (g1 / len) * r, y: (g2 / len) * r, z: (g3 / len) * r,
-      hue: 35, light: 60, size: 1,
+      hue: 35, light: 60, size: 1, tw: -1,
       dust: true, label: n.label ?? n.id, source: n.source_file ?? "",
       sx: 0, sy: 0, depth: 0,
     });
@@ -116,12 +121,12 @@ function ringItems(ctx: WidgetContext, folder: string, max: number): RingItem[] 
   });
 }
 
-// few orbs sit on the bottom arc; a full deck wraps the whole ring
+// few orbs sit on the bottom-left arc clear of the footer; a full deck wraps the whole ring
 function orbAngle(i: number, n: number): number {
   if (n >= 10) return -Math.PI / 2 + (i / n) * Math.PI * 2;
-  const span = Math.min(2.1, 0.55 * n);
-  const start = Math.PI / 2 - span / 2;
-  return n === 1 ? Math.PI / 2 : start + (i / (n - 1)) * span;
+  const center = Math.PI * 0.72;
+  const span = Math.min(1.9, 0.5 * n);
+  return n === 1 ? center : center - span / 2 + (i / (n - 1)) * span;
 }
 
 export const brainWidget: WidgetSpec = {
@@ -149,6 +154,22 @@ export const brainWidget: WidgetSpec = {
     const order = points.map((_, i) => i);
     const communities = new Set(nodes.map((n) => n.community ?? -1)).size;
 
+    // short intra-cloud links only, shortest first, capped for legibility
+    const idIndex = new Map(points.map((p, i) => [p.id, i]));
+    const edges: [number, number, number][] = [];
+    for (const l of graph.links ?? []) {
+      const a = idIndex.get(String(l.source));
+      const b = idIndex.get(String(l.target));
+      if (a === undefined || b === undefined) continue;
+      const pa = points[a], pb = points[b];
+      if (pa.dust || pb.dust) continue;
+      const dx = pa.x - pb.x, dy = pa.y - pb.y, dz = pa.z - pb.z;
+      const len = Math.sqrt(dx * dx + dy * dy + dz * dz);
+      if (len < 0.34) edges.push([a, b, len]);
+    }
+    edges.sort((a, b) => a[2] - b[2]);
+    edges.length = Math.min(edges.length, 1500);
+
     const wrap = el.createDiv({ cls: "px-brain" });
     const fixedH = Number(pane.height) || 0;
     if (fixedH >= 280) wrap.style.height = `${fixedH}px`;
@@ -163,7 +184,7 @@ export const brainWidget: WidgetSpec = {
     tip.hide();
     const foot = wrap.createDiv({ cls: "px-brain__foot" });
     foot.createSpan({ text: `${nodes.length} nodes · ${(graph.links ?? []).length} links · ${communities} communities`, cls: "px-brain__stats" });
-    foot.createSpan({ text: "node → open note · space → full graph", cls: "px-brain__hint" });
+    foot.createSpan({ text: "node → open note · space → full graph · ⌘scroll → zoom", cls: "px-brain__hint" });
 
     interface Orb { elBtn: HTMLElement; angle: number; }
     const orbs: Orb[] = [];
@@ -189,13 +210,15 @@ export const brainWidget: WidgetSpec = {
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let angle = 0;
+    let now = 0;
+    let zoom = 1;
     let raf = 0;
     let hover: Point | null = null;
 
     const geometry = (): { w: number; h: number; cx: number; cy: number; R: number } => {
       const w = canvas.clientWidth;
       const h = canvas.clientHeight;
-      return { w, h, cx: w / 2, cy: h * 0.53, R: Math.min(w, h) * 0.37 };
+      return { w, h, cx: w / 2, cy: h * 0.53, R: Math.min(w, h) * 0.37 * zoom };
     };
 
     // rotate around Y, project, sort back-to-front, shade by depth
@@ -238,6 +261,17 @@ export const brainWidget: WidgetSpec = {
       }
       order.sort((a, b) => points[a].depth - points[b].depth);
 
+      g.lineWidth = 0.6;
+      for (const [a, b] of edges) {
+        const pa = points[a], pb = points[b];
+        const d = (pa.depth + pb.depth) / 2;
+        g.strokeStyle = `hsla(${pa.hue}, 55%, 62%, ${0.03 + 0.09 * d})`;
+        g.beginPath();
+        g.moveTo(pa.sx, pa.sy);
+        g.lineTo(pb.sx, pb.sy);
+        g.stroke();
+      }
+
       for (const i of order) {
         const p = points[i];
         const d = p.depth;
@@ -247,7 +281,8 @@ export const brainWidget: WidgetSpec = {
           continue;
         }
         const size = p.size * (0.55 + 0.65 * d);
-        const alpha = 0.30 + 0.62 * d;
+        let alpha = 0.30 + 0.62 * d;
+        if (p.tw >= 0 && !reduceMotion) alpha *= 0.70 + 0.30 * Math.sin(now * 2.2 + p.tw);
         if (d > 0.6) {
           g.fillStyle = `hsla(${p.hue}, 68%, ${p.light}%, ${0.10 + 0.08 * d})`;
           g.beginPath();
@@ -268,7 +303,8 @@ export const brainWidget: WidgetSpec = {
     };
 
     const loop = (t: number): void => {
-      angle = (t / 1000) * 0.012;
+      now = t / 1000;
+      angle = now * 0.012;
       draw();
       raf = window.requestAnimationFrame(loop);
     };
@@ -308,6 +344,13 @@ export const brainWidget: WidgetSpec = {
       if (reduceMotion) draw();
     });
     canvas.addEventListener("mouseleave", () => { hover = null; tip.hide(); if (reduceMotion) draw(); });
+    // pinch or ctrl/cmd+scroll zooms; plain scroll keeps scrolling the page
+    canvas.addEventListener("wheel", (ev) => {
+      if (!ev.ctrlKey && !ev.metaKey) return;
+      ev.preventDefault();
+      zoom = Math.min(3, Math.max(0.6, zoom * Math.exp(-ev.deltaY * 0.002)));
+      if (reduceMotion) draw();
+    }, { passive: false });
     canvas.addEventListener("click", (ev) => {
       const p = hit(ev);
       if (p && p.source.endsWith(".md")) { ctx.openNote(p.source); return; }
