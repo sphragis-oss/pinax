@@ -11,7 +11,7 @@
 
 **pinax** (πίναξ, an ancient board/panel - literally a dashboard) is a domain-agnostic, LLM-buildable dashboard framework for Obsidian. You describe the dashboard you want; a config file (`profile.json`) renders it on top of the notes you already have. No code, no rebuild, no assumptions about your vault.
 
-The same codebase ships three profiles with zero code difference: an SRE command center, the full multi-tab "The Helm" dashboard it was seeded from, and a reading tracker. That is the point: pinax is a framework, not an app.
+The same codebase ships four profiles with zero code difference: an SRE command center, the full multi-tab "The Helm" dashboard it was seeded from, a reading tracker, and the zones-layout "Rubric" command center. That is the point: pinax is a framework, not an app.
 
 ![Pinax demo: mark a task done from the board, undo it, quick-capture into today's note, then watch an external edit live-refresh the dashboard](docs/demo.gif)
 
@@ -44,7 +44,7 @@ cd <vault>/.obsidian/plugins/pinax
 npm install && npm run build
 ```
 
-Enable community plugins in Obsidian, toggle **Pinax** on, then run **Pinax: Open dashboard** from the command palette or click the ribbon icon. On first load the bundled `sre`, `helm`, and `reading` profiles are materialized under `profiles/`; pick one in Settings → Pinax.
+Enable community plugins in Obsidian, toggle **Pinax** on, then run **Pinax: Open dashboard** from the command palette or click the ribbon icon. On first load the bundled `sre`, `helm`, `reading`, and `rubric` profiles are materialized under `profiles/`; pick one in Settings → Pinax.
 
 Optional companion: the **Terminal** community plugin (`polyipseity/obsidian-terminal`) so command buttons open an integrated terminal pane. Prefer a specific app instead (iTerm2, Ghostty, kitty, Windows Terminal, ...)? Pick it under Settings → Pinax → **Preferred terminal**; the choice is stored per device, and "Copy only" skips the terminal entirely.
 
@@ -55,6 +55,7 @@ Optional companion: the **Terminal** community plugin (`polyipseity/obsidian-ter
 | `sre` | No regression from the seed plugin (single page) | `raw/scans/*`, `raw/daily/`, `projects/` |
 | `helm` | Full multi-tab parity: hero, alerts, ops, standup, reports, system | same + `~/.claude` session logs, local service probes |
 | `reading` | Domain-agnosticism | a plain `reading/books/` folder |
+| `rubric` | The `zones` layout: left/right rails around a center knowledge-graph point cloud (`rubric.brain`), clock, artifacts ring | `graphify-out/graph.json`, `raw/artifacts/`, `raw/scans/*`, `projects/` |
 
 The `helm` profile's service probes and usage panel are desktop-only and sit behind the web/command toggles; on mobile or while gated they degrade to placeholders. Probe overrides (`FIRECRAWL_URL`, `VAULT_RECALL_MODEL`) are read from the app environment: a GUI-launched Obsidian does not inherit shell exports, so set them via `launchctl setenv` (macOS) or your desktop session environment, or rely on the defaults.
 

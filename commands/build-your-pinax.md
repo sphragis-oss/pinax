@@ -17,7 +17,7 @@ Ask conversationally, a few questions at a time. Adapt to their answers; skip wh
 4. **Creation**: Do they want to create entries from the dashboard (a form)? Which fields, which are required, any dropdowns?
 5. **Actions**: Any commands they run often (shell/CLI) that deserve buttons? Remind them buttons only copy + open a terminal, never auto-run.
 6. **Web**: Any https:// page worth embedding?
-7. **Shape**: One page (grid) or multiple tabs? Pane order and which panes deserve full width.
+7. **Shape**: One page (grid), multiple tabs, or a command-center page (zones: left/right rails around a dominant center)? Pane order and which panes deserve full width.
 8. **Name**: A dashboard name and a short profile id (lowercase, dashes).
 
 ## Emit

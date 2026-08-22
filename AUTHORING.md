@@ -36,6 +36,23 @@ Always emit `"schemaVersion": 1` (omitting it means 1; future Pinax versions use
 }
 ```
 
+`layout: "zones"` renders a command-center page: narrow `left`/`right` rails around a dominant `center` column, plus an optional full-width `bottom` row (a normal two-column grid). Rails stack their panes vertically and ignore pane `width`; `center` is required, the rest are optional. On narrow windows the zones collapse to one column with center first. The bundled `rubric` profile is the reference example.
+
+A profile may also carry a top-level `"theme": "<id>"` (any id from the in-app theme picker). It is applied when the profile is activated; manual theme switches still win afterwards.
+
+```json
+{
+  "name": "My Command Center",
+  "layout": "zones",
+  "zones": {
+    "left":   [ ... ],
+    "center": [ ... ],
+    "right":  [ ... ],
+    "bottom": [ ... ]
+  }
+}
+```
+
 ### Fields every pane accepts
 
 | Field | Type | Meaning |

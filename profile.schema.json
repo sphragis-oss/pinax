@@ -2,20 +2,34 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://github.com/sphragis-oss/pinax/blob/main/profile.schema.json",
   "title": "Pinax profile",
-  "description": "A Pinax profile: the layout and panes of one dashboard. layout 'grid' requires 'panes'; layout 'tabs' requires 'tabs'.",
+  "description": "A Pinax profile: the layout and panes of one dashboard. layout 'grid' requires 'panes'; layout 'tabs' requires 'tabs'; layout 'zones' requires 'zones'.",
   "type": "object",
   "required": ["name", "layout"],
   "additionalProperties": false,
   "properties": {
     "schemaVersion": { "const": 1, "description": "Profile schema version. Always 1 for now; omitting it means 1." },
     "name": { "type": "string", "minLength": 1, "description": "Display name of the dashboard" },
-    "layout": { "enum": ["grid", "tabs"], "description": "grid: one page of panes. tabs: multiple named pages" },
+    "layout": { "enum": ["grid", "tabs", "zones"], "description": "grid: one page of panes. tabs: multiple named pages. zones: one page split into left/center/right rails plus an optional bottom row" },
+    "theme": { "type": "string", "description": "Theme id this profile carries (see the in-app theme picker for ids). Applied when the profile is activated; the user can still switch themes afterwards" },
     "panes": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/pane" } },
-    "tabs": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/tab" } }
+    "tabs": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/tab" } },
+    "zones": {
+      "type": "object",
+      "required": ["center"],
+      "additionalProperties": false,
+      "description": "Command-center page: narrow left/right rails around a dominant center column, optional full-width bottom row. Rails stack panes vertically; pane 'width' is ignored inside a rail.",
+      "properties": {
+        "left": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/pane" } },
+        "center": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/pane" } },
+        "right": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/pane" } },
+        "bottom": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/pane" } }
+      }
+    }
   },
   "allOf": [
     { "if": { "properties": { "layout": { "const": "grid" } } }, "then": { "required": ["panes"] } },
-    { "if": { "properties": { "layout": { "const": "tabs" } } }, "then": { "required": ["tabs"] } }
+    { "if": { "properties": { "layout": { "const": "tabs" } } }, "then": { "required": ["tabs"] } },
+    { "if": { "properties": { "layout": { "const": "zones" } } }, "then": { "required": ["zones"] } }
   ],
   "definitions": {
     "vaultPath": {

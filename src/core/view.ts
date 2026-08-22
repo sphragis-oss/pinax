@@ -155,6 +155,8 @@ export class PinaxView extends ItemView {
       }
       const active = tabs.find((t) => t.id === this.activeTabId);
       await this.renderPanes(body, active?.panes ?? []);
+    } else if (profile.layout === "zones") {
+      await this.renderZones(body);
     } else {
       await this.renderPanes(body, profile.panes ?? []);
     }
@@ -293,6 +295,23 @@ export class PinaxView extends ItemView {
       applyFilter();
       window.setTimeout(() => input.focus(), 0);
     });
+  }
+
+  private async renderZones(body: HTMLElement): Promise<void> {
+    const zones = this.host.profile?.zones;
+    if (!zones) {
+      placeholderEl(body, "no zones", "layout is \"zones\" but the profile has no zones object.");
+      return;
+    }
+    const row = body.createDiv({ cls: "px-zones" });
+    for (const [key, panes] of [["left", zones.left], ["center", zones.center], ["right", zones.right]] as const) {
+      if (!panes || panes.length === 0) continue;
+      const col = row.createDiv({ cls: `px-zone px-zone-${key}` });
+      for (const pane of panes) await this.renderPane(col, pane);
+    }
+    if (zones.bottom && zones.bottom.length > 0) {
+      await this.renderPanes(body, zones.bottom);
+    }
   }
 
   private async renderPanes(container: HTMLElement, panes: PaneConfig[]): Promise<void> {

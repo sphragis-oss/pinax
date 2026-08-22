@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "name": "Rubric",
+  "layout": "zones",
+  "theme": "rubric",
+  "zones": {
+    "left": [
+      { "type": "custom", "widget": "rubric.clock", "frame": false },
+      {
+        "type": "command-buttons",
+        "title": "▦ MICRO APPS",
+        "buttons": [
+          { "label": "Second Brain",  "command": "open graphify-out/graph.html",  "icon": "orbit", "terminal": true, "color": "accent" },
+          { "label": "Daily Note",    "command": "claude /daily-note",            "icon": "calendar", "terminal": true },
+          { "label": "Vault Search",  "command": "claude /vault-search",          "icon": "search" },
+          { "label": "Vault Recall",  "command": "claude /vault-recall",          "icon": "brain" }
+        ]
+      },
+      { "type": "custom", "widget": "sre.tasks", "title": "▤ OPEN TASKS", "config": { "folders": ["raw/daily", "projects"], "exclude": ["projects/personal/claude-os"] } }
+    ],
+    "center": [
+      {
+        "type": "custom",
+        "widget": "rubric.brain",
+        "frame": false,
+        "config": {
+          "heading": "CLAUDEVAULT Agentic OS",
+          "subtitle": "Nick | SREKubeCraft",
+          "folder": "graphify-out/graph.json",
+          "note": "graphify-out/graph.html",
+          "ringFolder": "raw/artifacts"
+        }
+      }
+    ],
+    "right": [
+      {
+        "type": "command-buttons",
+        "title": "⚡ SKILLS DECK",
+        "buttons": [
+          { "label": "Morning Scan",    "command": "claude -p \"/morning-trend-scan\"",  "icon": "telescope", "terminal": true, "color": "accent" },
+          { "label": "Vault Optimizer", "command": "claude -p \"/vault-optimizer\"",     "icon": "sparkles",  "terminal": true },
+          { "label": "MCP Audit",       "command": "claude -p \"/mcp-audit\"",           "icon": "plug",      "terminal": true },
+          { "label": "Monthly Index",   "command": "claude -p \"/vault-monthly-index\"", "icon": "calendar-range", "terminal": true },
+          { "label": "Rebuild Graph",   "command": "claude \"/graphify . --update\"",    "icon": "refresh-cw", "terminal": true },
+          { "label": "Reindex Recall",  "command": "claude \"/vault-recall index --update\"", "icon": "database", "terminal": true }
+        ]
+      },
+      { "type": "custom", "widget": "sre.schedule", "title": "⏱ ROUTINES" },
+      { "type": "heatmap", "title": "◧ SESSION ACTIVITY", "recursive": true, "weeks": 20, "source": { "folder": "raw/sessions" } }
+    ],
+    "bottom": [
+      { "type": "custom", "widget": "sre.scan", "title": "⬢ CNCF / PLATFORM RADAR", "width": "half", "config": { "folder": "raw/scans", "rowFilter": true } },
+      { "type": "custom", "widget": "sre.projects", "title": "▣ PROJECTS", "width": "half", "config": { "folder": "projects" } }
+    ]
+  }
+}

@@ -37,7 +37,7 @@ function formatErrors(errors: ErrorObject[], data: unknown): string[] {
   const out: string[] = [];
   const paneErrors = new Set<string>();
   for (const e of errors) {
-    const paneMatch = e.instancePath.match(/^(\/(?:tabs\/\d+\/)?panes\/\d+)/);
+    const paneMatch = e.instancePath.match(/^(\/(?:tabs\/\d+\/)?panes\/\d+|\/zones\/(?:left|center|right|bottom)\/\d+)/);
     if (paneMatch) {
       paneErrors.add(paneMatch[1]);
       continue;

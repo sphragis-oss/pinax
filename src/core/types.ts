@@ -33,12 +33,21 @@ export interface TabConfig {
   panes: PaneConfig[];
 }
 
+export interface ZonesConfig {
+  left?: PaneConfig[];
+  center: PaneConfig[];
+  right?: PaneConfig[];
+  bottom?: PaneConfig[];
+}
+
 export interface Profile {
   schemaVersion?: 1;
   name: string;
-  layout: "grid" | "tabs";
+  layout: "grid" | "tabs" | "zones";
+  theme?: string;
   panes?: PaneConfig[];
   tabs?: TabConfig[];
+  zones?: ZonesConfig;
 }
 
 export type WidgetCleanup = () => void;

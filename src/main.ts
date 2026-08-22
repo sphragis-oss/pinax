@@ -8,6 +8,7 @@ import { buildApi, PinaxApi } from "./core/api";
 import type { PinaxHost } from "./core/host";
 import { DEFAULT_SETTINGS, NO_TRUST, PinaxSettings, Profile, TrustSettings } from "./core/types";
 import { buildMatcher } from "./core/live";
+import { allThemes, setThemeId } from "./core/themes";
 import { installPacks, bundledProfiles } from "./packs";
 
 declare global {
@@ -159,6 +160,9 @@ export default class PinaxPlugin extends Plugin implements PinaxHost {
     this.prefs.activeProfile = id;
     await this.saveSettings();
     await this.reloadProfile();
+    // a profile can carry its look; manual theme switches still win afterwards
+    const t = this.profile?.theme;
+    if (t && allThemes().some((x) => x.id === t)) setThemeId(this.app, t);
     this.startWatch();
   }
 
