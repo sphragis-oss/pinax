@@ -65,7 +65,7 @@ export async function runCommand(app: App, cmd: string): Promise<void> {
 
   const cp = nodeRequire<NodeChildProcess>("child_process");
   if (cp) {
-    trySpawn(cp, spawnCandidates(currentTerminalPlatform(), pref), 0);
+    trySpawn(cp, spawnCandidates(currentTerminalPlatform(), pref, macAppDetected), 0);
     return;
   }
   new Notice("No terminal available; the command is on your clipboard.");

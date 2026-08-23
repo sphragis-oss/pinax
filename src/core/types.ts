@@ -13,7 +13,7 @@ export const NO_TRUST: TrustSettings = { web: false, command: false, write: fals
 export interface PaneConfig {
   type: string;
   title?: string;
-  width?: "half" | "full";
+  width?: "half" | "full" | "third";
   frame?: boolean;
   folder?: string;
   note?: string;

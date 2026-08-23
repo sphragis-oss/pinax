@@ -1223,7 +1223,8 @@
 
 .cc-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  /* 6 tracks so panes can span half (3), third (2), or full (6) */
+  grid-template-columns: repeat(6, 1fr);
   align-items: start;
   gap: 16px;
   margin-bottom: 16px;
@@ -1239,7 +1240,9 @@
   overflow: hidden;
   box-shadow: 0 1px 0 rgba(255,255,255,0.02) inset, 0 4px 16px -10px rgba(0,0,0,0.6);
 }
-.cc-pane.cc-pane-wide { grid-column: 1 / -1; }
+.cc-grid > .cc-pane { grid-column: span 3; }
+.cc-grid > .cc-pane.cc-pane-wide { grid-column: 1 / -1; }
+.cc-grid > .cc-pane.cc-pane-third { grid-column: span 2; }
 
 /* Title bar: traffic-light dots + path-style heading, keeps original orange accent */
 .cc-pane h3 {
@@ -2501,7 +2504,8 @@ a.cc-kep-id:hover { border-color: var(--accent); }
 
 .px-grid { min-width: 0; }
 .px-bare { grid-column: 1 / -1; min-width: 0; }
-.px-bare-half { grid-column: auto; }
+.px-bare-half { grid-column: span 3; }
+.px-bare-third { grid-column: span 2; }
 .px-pane-body { min-width: 0; }
 
 .px-placeholder,
@@ -2851,3 +2855,9 @@ textarea.px-form-input { min-height: 70px; resize: vertical; }
   white-space: nowrap;
 }
 .cc-pr-refresh { margin-left: auto; }
+
+/* single column: every grid pane goes full width */
+@media (max-width: 1100px) {
+  .cc-grid > .cc-pane, .cc-grid > .cc-pane.cc-pane-wide, .cc-grid > .cc-pane.cc-pane-third,
+  .cc-grid > .px-bare, .cc-grid > .px-bare-half, .cc-grid > .px-bare-third { grid-column: 1 / -1; }
+}

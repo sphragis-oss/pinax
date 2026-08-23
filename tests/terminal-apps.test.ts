@@ -17,6 +17,16 @@ test("auto uses the platform default chain", () => {
   assert.ok(linux.length >= 2);
 });
 
+test("mac auto prefers detected terminals, Terminal.app last", () => {
+  const detect = (app: string) => app === "Ghostty" || app === "iTerm";
+  assert.deepEqual(spawnCandidates("mac", "auto", detect), [
+    { cmd: "open", args: ["-a", "iTerm"] },
+    { cmd: "open", args: ["-a", "Ghostty"] },
+    { cmd: "open", args: ["-a", "Terminal"] },
+  ]);
+  assert.deepEqual(spawnCandidates("mac", "auto", () => false), [{ cmd: "open", args: ["-a", "Terminal"] }]);
+});
+
 test("unknown stored id degrades to the auto chain", () => {
   assert.deepEqual(spawnCandidates("mac", "no-such-terminal"), spawnCandidates("mac", "auto"));
   assert.deepEqual(spawnCandidates("win", "iterm"), spawnCandidates("win", "auto"));

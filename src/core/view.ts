@@ -327,11 +327,12 @@ export class PinaxView extends ItemView {
 
   private async renderPane(grid: HTMLElement, pane: PaneConfig): Promise<void> {
     const wide = pane.width === "full";
+    const third = pane.width === "third";
     let bodyEl: HTMLElement;
     if (pane.frame === false) {
-      bodyEl = grid.createDiv({ cls: "px-bare" + (wide ? "" : " px-bare-half") });
+      bodyEl = grid.createDiv({ cls: "px-bare" + (wide ? "" : third ? " px-bare-third" : " px-bare-half") });
     } else {
-      const paneEl = grid.createDiv({ cls: "cc-pane" + (wide ? " cc-pane-wide" : "") });
+      const paneEl = grid.createDiv({ cls: "cc-pane" + (wide ? " cc-pane-wide" : third ? " cc-pane-third" : "") });
       paneEl.createEl("h3", { text: pane.title ?? pane.type });
       bodyEl = paneEl.createDiv({ cls: "px-pane-body" });
     }

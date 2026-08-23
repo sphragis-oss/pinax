@@ -11,47 +11,6 @@
         "frame": false
       },
       {
-        "type": "command-buttons",
-        "title": "▦ MICRO APPS",
-        "buttons": [
-          {
-            "label": "Second Brain",
-            "command": "open graphify-out/graph.html",
-            "icon": "orbit",
-            "terminal": true,
-            "color": "accent"
-          },
-          {
-            "label": "Daily Note",
-            "command": "claude /daily-note",
-            "icon": "calendar",
-            "terminal": true
-          },
-          {
-            "label": "Vault Search",
-            "command": "claude /vault-search",
-            "icon": "search"
-          },
-          {
-            "label": "Vault Recall",
-            "command": "claude /vault-recall",
-            "icon": "brain"
-          },
-          {
-            "label": "Rebuild Graph",
-            "command": "claude \"/graphify . --update\"",
-            "icon": "refresh-cw",
-            "terminal": true
-          },
-          {
-            "label": "Reindex Recall",
-            "command": "claude \"/vault-recall index --update\"",
-            "icon": "database",
-            "terminal": true
-          }
-        ]
-      },
-      {
         "type": "custom",
         "widget": "sre.services",
         "frame": false
@@ -87,15 +46,33 @@
     ],
     "right": [
       {
+        "type": "custom",
+        "widget": "rubric.prs",
+        "title": "⇅ OPEN PRS · NON-WORKABLE"
+      },
+      {
         "type": "command-buttons",
-        "title": "⚡ SKILLS DECK · TOP 30D",
+        "title": "⚡ LAUNCH DECK",
+        "buttonsFile": "graphify-out/skill-deck.json",
         "buttons": [
+          {
+            "label": "Second Brain",
+            "command": "open graphify-out/graph.html",
+            "icon": "orbit",
+            "terminal": true,
+            "color": "accent"
+          },
+          {
+            "label": "Daily Note",
+            "command": "claude /daily-note",
+            "icon": "calendar",
+            "terminal": true
+          },
           {
             "label": "Graphify",
             "command": "claude \"/graphify\"",
             "icon": "share-2",
-            "terminal": true,
-            "color": "accent"
+            "terminal": true
           },
           {
             "label": "Vault Recall",
@@ -126,28 +103,25 @@
             "command": "claude \"/run\"",
             "icon": "play",
             "terminal": true
+          },
+          {
+            "label": "Rebuild Graph",
+            "command": "claude \"/graphify . --update\"",
+            "icon": "refresh-cw",
+            "terminal": true
+          },
+          {
+            "label": "Reindex Recall",
+            "command": "claude \"/vault-recall index --update\"",
+            "icon": "database",
+            "terminal": true
           }
-        ],
-        "buttonsFile": "graphify-out/skill-deck.json"
+        ]
       },
       {
         "type": "custom",
         "widget": "sre.schedule",
         "title": "⏱ ROUTINES"
-      },
-      {
-        "type": "custom",
-        "widget": "rubric.prs",
-        "title": "⇅ OPEN PRS · NON-WORKABLE"
-      },
-      {
-        "type": "heatmap",
-        "title": "◧ SESSION ACTIVITY",
-        "recursive": true,
-        "weeks": 20,
-        "source": {
-          "folder": "raw/sessions"
-        }
       }
     ],
     "bottom": [
@@ -155,7 +129,7 @@
         "type": "custom",
         "widget": "sre.scan",
         "title": "⬢ CNCF / PLATFORM RADAR",
-        "width": "half",
+        "width": "third",
         "config": {
           "folder": "raw/scans",
           "rowFilter": true
@@ -165,10 +139,20 @@
         "type": "custom",
         "widget": "sre.projects",
         "title": "▣ PROJECTS",
-        "width": "half",
+        "width": "third",
         "config": {
           "folder": "projects"
         }
+      },
+      {
+        "type": "heatmap",
+        "title": "◧ SESSION ACTIVITY",
+        "recursive": true,
+        "weeks": 20,
+        "source": {
+          "folder": "raw/sessions"
+        },
+        "width": "third"
       }
     ]
   }

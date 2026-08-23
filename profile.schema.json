@@ -99,7 +99,7 @@
       "properties": {
         "type": { "const": "folder-latest" },
         "title": { "type": "string" },
-        "width": { "enum": ["half", "full"] },
+        "width": { "enum": ["half", "full", "third"] },
         "frame": { "type": "boolean" },
         "refreshSec": { "type": "integer", "minimum": 5, "description": "Re-render this pane every N seconds (min 5). Omit for render-on-demand only" },
         "folder": { "$ref": "#/definitions/vaultPath" },
@@ -114,7 +114,7 @@
       "properties": {
         "type": { "const": "folder-list" },
         "title": { "type": "string" },
-        "width": { "enum": ["half", "full"] },
+        "width": { "enum": ["half", "full", "third"] },
         "frame": { "type": "boolean" },
         "refreshSec": { "type": "integer", "minimum": 5, "description": "Re-render this pane every N seconds (min 5). Omit for render-on-demand only" },
         "folder": { "$ref": "#/definitions/vaultPath" },
@@ -129,7 +129,7 @@
       "properties": {
         "type": { "const": "markdown-embed" },
         "title": { "type": "string" },
-        "width": { "enum": ["half", "full"] },
+        "width": { "enum": ["half", "full", "third"] },
         "frame": { "type": "boolean" },
         "refreshSec": { "type": "integer", "minimum": 5, "description": "Re-render this pane every N seconds (min 5). Omit for render-on-demand only" },
         "note": {
@@ -145,7 +145,7 @@
       "properties": {
         "type": { "const": "table" },
         "title": { "type": "string" },
-        "width": { "enum": ["half", "full"] },
+        "width": { "enum": ["half", "full", "third"] },
         "frame": { "type": "boolean" },
         "refreshSec": { "type": "integer", "minimum": 5, "description": "Re-render this pane every N seconds (min 5). Omit for render-on-demand only" },
         "source": {
@@ -199,7 +199,7 @@
       "properties": {
         "type": { "const": "form" },
         "title": { "type": "string" },
-        "width": { "enum": ["half", "full"] },
+        "width": { "enum": ["half", "full", "third"] },
         "frame": { "type": "boolean" },
         "refreshSec": { "type": "integer", "minimum": 5, "description": "Re-render this pane every N seconds (min 5). Omit for render-on-demand only" },
         "target": {
@@ -254,7 +254,7 @@
       "properties": {
         "type": { "const": "command-buttons" },
         "title": { "type": "string" },
-        "width": { "enum": ["half", "full"] },
+        "width": { "enum": ["half", "full", "third"] },
         "frame": { "type": "boolean" },
         "refreshSec": { "type": "integer", "minimum": 5, "description": "Re-render this pane every N seconds (min 5). Omit for render-on-demand only" },
         "buttonsFile": { "type": "string", "minLength": 1, "description": "Vault-relative JSON file with a buttons[] array. When present and readable, overrides the static buttons; the static list stays as fallback" },
@@ -283,7 +283,7 @@
       "properties": {
         "type": { "const": "iframe" },
         "title": { "type": "string" },
-        "width": { "enum": ["half", "full"] },
+        "width": { "enum": ["half", "full", "third"] },
         "frame": { "type": "boolean" },
         "refreshSec": { "type": "integer", "minimum": 5, "description": "Re-render this pane every N seconds (min 5). Omit for render-on-demand only" },
         "url": { "type": "string", "pattern": "^https://", "description": "https:// URL to embed" },
@@ -297,7 +297,7 @@
       "properties": {
         "type": { "const": "heatmap" },
         "title": { "type": "string" },
-        "width": { "enum": ["half", "full"] },
+        "width": { "enum": ["half", "full", "third"] },
         "frame": { "type": "boolean" },
         "refreshSec": { "type": "integer", "minimum": 5, "description": "Re-render this pane every N seconds (min 5). Omit for render-on-demand only" },
         "source": {
@@ -332,7 +332,7 @@
       "properties": {
         "type": { "const": "board" },
         "title": { "type": "string" },
-        "width": { "enum": ["half", "full"] },
+        "width": { "enum": ["half", "full", "third"] },
         "frame": { "type": "boolean" },
         "refreshSec": { "type": "integer", "minimum": 5, "description": "Re-render this pane every N seconds (min 5). Omit for render-on-demand only" },
         "source": {
@@ -385,7 +385,7 @@
       "properties": {
         "type": { "const": "stat" },
         "title": { "type": "string" },
-        "width": { "enum": ["half", "full"] },
+        "width": { "enum": ["half", "full", "third"] },
         "frame": { "type": "boolean" },
         "refreshSec": { "type": "integer", "minimum": 5, "description": "Re-render this pane every N seconds (min 5). Omit for render-on-demand only" },
         "source": {
@@ -436,7 +436,7 @@
       "properties": {
         "type": { "const": "custom" },
         "title": { "type": "string" },
-        "width": { "enum": ["half", "full"] },
+        "width": { "enum": ["half", "full", "third"] },
         "frame": { "type": "boolean" },
         "refreshSec": { "type": "integer", "minimum": 5, "description": "Re-render this pane every N seconds (min 5). Omit for render-on-demand only" },
         "widget": {

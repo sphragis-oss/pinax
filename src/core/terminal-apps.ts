@@ -44,10 +44,14 @@ export function terminalChoices(platform: TerminalPlatform): TerminalChoice[] {
 }
 
 // spawns to try in order; unknown or "auto" pref degrades to the platform default chain
-export function spawnCandidates(platform: TerminalPlatform, pref: string): TerminalSpawn[] {
+export function spawnCandidates(platform: TerminalPlatform, pref: string, detect?: (app: string) => boolean): TerminalSpawn[] {
   const hit = CHOICES[platform].find((c) => c.id === pref);
   if (hit) return [hit.spawn];
-  if (platform === "mac") return [{ cmd: "open", args: ["-a", "Terminal"] }];
+  if (platform === "mac") {
+    // auto prefers any detected third-party terminal; Terminal.app is the last resort
+    const found = detect ? CHOICES.mac.filter((c) => c.id !== "terminal" && c.macApp !== undefined && detect(c.macApp)) : [];
+    return [...found.map((c) => c.spawn), { cmd: "open", args: ["-a", "Terminal"] }];
+  }
   if (platform === "win") return [{ cmd: "cmd", args: ["/c", "start", "", "cmd"] }];
   return ["x-terminal-emulator", "gnome-terminal", "konsole", "kitty", "xterm"].map((cmd) => ({ cmd, args: [] }));
 }
