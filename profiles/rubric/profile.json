@@ -127,7 +127,8 @@
             "icon": "play",
             "terminal": true
           }
-        ]
+        ],
+        "buttonsFile": "graphify-out/skill-deck.json"
       },
       {
         "type": "custom",

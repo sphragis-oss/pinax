@@ -13,11 +13,24 @@ interface ButtonConfig {
 
 const BUTTON_COLORS = new Set(["accent", "success", "warning", "danger"]);
 
+function isButton(b: unknown): b is ButtonConfig {
+  const o = b as Record<string, unknown> | null;
+  return !!o && typeof o.label === "string" && typeof o.command === "string";
+}
+
 export const commandButtons: WidgetSpec = {
   gate: "command",
   defaults: { buttons: [{ label: "Example", command: "echo hello" }] },
-  render(el: HTMLElement, ctx: WidgetContext): void {
-    const buttons = (Array.isArray(ctx.pane.buttons) ? ctx.pane.buttons : []) as ButtonConfig[];
+  async render(el: HTMLElement, ctx: WidgetContext): Promise<void> {
+    let buttons = (Array.isArray(ctx.pane.buttons) ? ctx.pane.buttons : []) as ButtonConfig[];
+    const file = typeof ctx.pane.buttonsFile === "string" ? ctx.pane.buttonsFile : null;
+    if (file) {
+      try {
+        const raw: unknown = JSON.parse(await ctx.app.vault.adapter.read(file));
+        const rows = (Array.isArray(raw) ? raw : []).filter(isButton);
+        if (rows.length > 0) buttons = rows;
+      } catch { /* file missing or malformed: keep the static fallback */ }
+    }
     if (buttons.length === 0) {
       emptyEl(el, "command-buttons pane needs buttons[]");
       return;

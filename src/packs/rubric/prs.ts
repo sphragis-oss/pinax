@@ -6,8 +6,23 @@ interface PrRow { repo: string; title: string; url: string; draft: boolean; date
 
 // rows come from gh-prs-scan: "- **owner/repo** [title](url)( · draft) · YYYY-MM-DD"
 const ROW = /^- \*\*(.+?)\*\* \[(.+?)\]\((\S+?)\)((?: · draft)?) · (\d{4}-\d{2}-\d{2})$/;
+const JSON_BLOCK = /```json\n([\s\S]*?)\n```/;
+
+function isPrRow(r: unknown): r is PrRow {
+  const o = r as Record<string, unknown> | null;
+  return !!o && typeof o.repo === "string" && typeof o.title === "string" &&
+    typeof o.url === "string" && typeof o.date === "string";
+}
 
 function parseRows(text: string): PrRow[] {
+  // prefer the fenced JSON block; markdown regex is the fallback for old scans
+  const jm = text.match(JSON_BLOCK);
+  if (jm) {
+    try {
+      const raw: unknown = JSON.parse(jm[1]);
+      if (Array.isArray(raw)) return raw.filter(isPrRow).map((r) => ({ ...r, draft: r.draft === true }));
+    } catch { /* fall through to markdown rows */ }
+  }
   const rows: PrRow[] = [];
   for (const line of text.split("\n")) {
     const m = line.match(ROW);

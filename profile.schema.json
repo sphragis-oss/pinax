@@ -257,6 +257,7 @@
         "width": { "enum": ["half", "full"] },
         "frame": { "type": "boolean" },
         "refreshSec": { "type": "integer", "minimum": 5, "description": "Re-render this pane every N seconds (min 5). Omit for render-on-demand only" },
+        "buttonsFile": { "type": "string", "minLength": 1, "description": "Vault-relative JSON file with a buttons[] array. When present and readable, overrides the static buttons; the static list stays as fallback" },
         "buttons": {
           "type": "array",
           "minItems": 1,

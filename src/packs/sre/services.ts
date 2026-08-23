@@ -65,7 +65,7 @@ export const servicesWidget: WidgetSpec = {
         const o = await checkOllama();
         const ms = Math.round(performance.now() - t0);
         return o.up
-          ? { status: "up", badge: `${ms}ms`, lines: [`${o.model} · v${o.version || "?"}`, o.modelPulled ? "model pulled" : "model NOT pulled"], actions: [{ label: "restart", cmd: "ollama serve" }] }
+          ? { status: "up", badge: `${ms}ms`, lines: [`${o.model} · v${o.version || "?"}`, o.modelPulled ? "model pulled" : "model NOT pulled"], actions: [{ label: "restart", cmd: "pkill -x ollama; sleep 1; ollama serve" }] }
           : { status: "down", badge: "down", lines: ["daemon unreachable :11434"], actions: [{ label: "start", cmd: "ollama serve" }] };
       } },
       { name: "Firecrawl", probe: async () => {
@@ -133,7 +133,8 @@ export const servicesWidget: WidgetSpec = {
 
     void rebuild();
     if (autoOn) {
-      timer = window.setInterval(() => { void rebuild(); }, 15000);
+      // skip probes while the window is hidden; no docker/HTTP churn in the background
+      timer = window.setInterval(() => { if (!document.hidden) void rebuild(); }, 15000);
     }
     return () => { if (timer !== null) window.clearInterval(timer); };
   },
