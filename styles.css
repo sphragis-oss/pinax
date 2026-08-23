@@ -2751,6 +2751,7 @@ textarea.px-form-input { min-height: 70px; resize: vertical; }
   margin-top: 2px;
 }
 .px-brain__canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.px-brain__canvas--hover { cursor: pointer; }
 .px-brain__tip {
   position: absolute;
   z-index: 3;

@@ -336,10 +336,10 @@ export const brainWidget: WidgetSpec = {
         tip.style.left = `${ev.clientX - rect.left + 12}px`;
         tip.style.top = `${ev.clientY - rect.top - 8}px`;
         tip.show();
-        canvas.style.cursor = "pointer";
+        canvas.addClass("px-brain__canvas--hover");
       } else {
         tip.hide();
-        canvas.style.cursor = "default";
+        canvas.removeClass("px-brain__canvas--hover");
       }
       if (reduceMotion) draw();
     });
