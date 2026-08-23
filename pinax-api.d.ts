@@ -12,7 +12,7 @@ export interface TrustSettings {
 export interface PaneConfig {
   type: string;
   title?: string;
-  width?: "half" | "full";
+  width?: "half" | "full" | "third";
   frame?: boolean;
   folder?: string;
   note?: string;
