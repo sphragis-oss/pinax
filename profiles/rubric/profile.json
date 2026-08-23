@@ -5,18 +5,71 @@
   "theme": "rubric",
   "zones": {
     "left": [
-      { "type": "custom", "widget": "rubric.clock", "frame": false },
+      {
+        "type": "custom",
+        "widget": "rubric.clock",
+        "frame": false
+      },
       {
         "type": "command-buttons",
         "title": "▦ MICRO APPS",
         "buttons": [
-          { "label": "Second Brain",  "command": "open graphify-out/graph.html",  "icon": "orbit", "terminal": true, "color": "accent" },
-          { "label": "Daily Note",    "command": "claude /daily-note",            "icon": "calendar", "terminal": true },
-          { "label": "Vault Search",  "command": "claude /vault-search",          "icon": "search" },
-          { "label": "Vault Recall",  "command": "claude /vault-recall",          "icon": "brain" }
+          {
+            "label": "Second Brain",
+            "command": "open graphify-out/graph.html",
+            "icon": "orbit",
+            "terminal": true,
+            "color": "accent"
+          },
+          {
+            "label": "Daily Note",
+            "command": "claude /daily-note",
+            "icon": "calendar",
+            "terminal": true
+          },
+          {
+            "label": "Vault Search",
+            "command": "claude /vault-search",
+            "icon": "search"
+          },
+          {
+            "label": "Vault Recall",
+            "command": "claude /vault-recall",
+            "icon": "brain"
+          },
+          {
+            "label": "Rebuild Graph",
+            "command": "claude \"/graphify . --update\"",
+            "icon": "refresh-cw",
+            "terminal": true
+          },
+          {
+            "label": "Reindex Recall",
+            "command": "claude \"/vault-recall index --update\"",
+            "icon": "database",
+            "terminal": true
+          }
         ]
       },
-      { "type": "custom", "widget": "sre.tasks", "title": "▤ OPEN TASKS", "config": { "folders": ["raw/daily", "projects"], "exclude": ["projects/personal/claude-os"] } }
+      {
+        "type": "custom",
+        "widget": "sre.services",
+        "frame": false
+      },
+      {
+        "type": "custom",
+        "widget": "sre.tasks",
+        "title": "▤ OPEN TASKS",
+        "config": {
+          "folders": [
+            "raw/daily",
+            "projects"
+          ],
+          "exclude": [
+            "projects/personal/claude-os"
+          ]
+        }
+      }
     ],
     "center": [
       {
@@ -35,22 +88,87 @@
     "right": [
       {
         "type": "command-buttons",
-        "title": "⚡ SKILLS DECK",
+        "title": "⚡ SKILLS DECK · TOP 30D",
         "buttons": [
-          { "label": "Morning Scan",    "command": "claude -p \"/morning-trend-scan\"",  "icon": "telescope", "terminal": true, "color": "accent" },
-          { "label": "Vault Optimizer", "command": "claude -p \"/vault-optimizer\"",     "icon": "sparkles",  "terminal": true },
-          { "label": "MCP Audit",       "command": "claude -p \"/mcp-audit\"",           "icon": "plug",      "terminal": true },
-          { "label": "Monthly Index",   "command": "claude -p \"/vault-monthly-index\"", "icon": "calendar-range", "terminal": true },
-          { "label": "Rebuild Graph",   "command": "claude \"/graphify . --update\"",    "icon": "refresh-cw", "terminal": true },
-          { "label": "Reindex Recall",  "command": "claude \"/vault-recall index --update\"", "icon": "database", "terminal": true }
+          {
+            "label": "Graphify",
+            "command": "claude \"/graphify\"",
+            "icon": "share-2",
+            "terminal": true,
+            "color": "accent"
+          },
+          {
+            "label": "Vault Recall",
+            "command": "claude \"/vault-recall\"",
+            "icon": "brain",
+            "terminal": true
+          },
+          {
+            "label": "CNCF Contribute",
+            "command": "claude \"/cncf-contribute\"",
+            "icon": "git-fork",
+            "terminal": true
+          },
+          {
+            "label": "Vault Optimizer",
+            "command": "claude \"/vault-optimizer\"",
+            "icon": "sparkles",
+            "terminal": true
+          },
+          {
+            "label": "Claude API",
+            "command": "claude \"/claude-api\"",
+            "icon": "book-open",
+            "terminal": true
+          },
+          {
+            "label": "Run",
+            "command": "claude \"/run\"",
+            "icon": "play",
+            "terminal": true
+          }
         ]
       },
-      { "type": "custom", "widget": "sre.schedule", "title": "⏱ ROUTINES" },
-      { "type": "heatmap", "title": "◧ SESSION ACTIVITY", "recursive": true, "weeks": 20, "source": { "folder": "raw/sessions" } }
+      {
+        "type": "custom",
+        "widget": "sre.schedule",
+        "title": "⏱ ROUTINES"
+      },
+      {
+        "type": "custom",
+        "widget": "rubric.prs",
+        "title": "⇅ OPEN PRS · NON-WORKABLE"
+      },
+      {
+        "type": "heatmap",
+        "title": "◧ SESSION ACTIVITY",
+        "recursive": true,
+        "weeks": 20,
+        "source": {
+          "folder": "raw/sessions"
+        }
+      }
     ],
     "bottom": [
-      { "type": "custom", "widget": "sre.scan", "title": "⬢ CNCF / PLATFORM RADAR", "width": "half", "config": { "folder": "raw/scans", "rowFilter": true } },
-      { "type": "custom", "widget": "sre.projects", "title": "▣ PROJECTS", "width": "half", "config": { "folder": "projects" } }
+      {
+        "type": "custom",
+        "widget": "sre.scan",
+        "title": "⬢ CNCF / PLATFORM RADAR",
+        "width": "half",
+        "config": {
+          "folder": "raw/scans",
+          "rowFilter": true
+        }
+      },
+      {
+        "type": "custom",
+        "widget": "sre.projects",
+        "title": "▣ PROJECTS",
+        "width": "half",
+        "config": {
+          "folder": "projects"
+        }
+      }
     ]
   }
 }

@@ -2803,3 +2803,51 @@ textarea.px-form-input { min-height: 70px; resize: vertical; }
 .px-brain-fill { height: clamp(520px, calc(100vh - 340px), 940px); }
 .px-zone .cc-skill-row { grid-template-columns: repeat(2, 1fr); margin-bottom: 0; }
 .px-zone .px-pane-body { max-height: 40vh; overflow-y: auto; }
+
+/* rubric.prs: compact PR rows */
+.cc-pr-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--accent-faint);
+  font-size: 11px;
+  min-width: 0;
+}
+.cc-pr-row:last-child { border-bottom: none; }
+.cc-pr-repo {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--comment);
+  border: 1px solid var(--card-border);
+  border-radius: 4px;
+  padding: 1px 6px;
+  white-space: nowrap;
+}
+.cc-pr-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--foreground-bright);
+  cursor: pointer;
+}
+.cc-pr-title:hover { color: var(--accent); }
+.cc-pr-date {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  font-size: 10px;
+}
+.cc-pr-draft {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--warning);
+  border: 1px solid color-mix(in srgb, var(--warning) 40%, transparent);
+  border-radius: 4px;
+  padding: 0 5px;
+  white-space: nowrap;
+}
+.cc-pr-refresh { margin-left: auto; }
