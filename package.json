@@ -19,7 +19,7 @@
     "@types/node": "^26.2.0",
     "ajv": "^8.17.1",
     "esbuild": "^0.28.2",
-    "eslint": "^10.8.0",
+    "eslint": "^10.9.0",
     "eslint-plugin-obsidianmd": "^0.4.1",
     "jsdom": "^30.0.1",
     "obsidian": "^1.13.1",
