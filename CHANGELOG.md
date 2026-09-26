@@ -2,6 +2,36 @@
 
 All notable changes to pinax are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- `rubric.brain`: optional `stateDir` pane setting. Reads one JSON file per agent session (`state`, `tool`, `ts`) and shows Idle / Working / Waiting chips with a session count; the cloud spins faster while working and the glow pulses while waiting. Stale sessions (over 12 hours, or working with no update for 30 minutes) are ignored or treated as idle.
+
+## [0.1.9] - 2026-08-23
+
+### Fixed
+
+- `rubric.brain` hover cursor now uses a CSS class instead of an inline style (`obsidianmd/no-static-styles-assignment`).
+
+## [0.1.8] - 2026-08-23
+
+### Added
+
+- `layout: "zones"`: left, center and right rails plus an optional bottom row; a profile can now carry its own theme.
+- `rubric` pack, profile and theme: `rubric.clock`, `rubric.brain` (3D nebula of the knowledge graph with intra-cloud links, twinkle and pinch zoom) and `rubric.prs` (compact PR rows, JSON rows supported).
+- `command-buttons`: `buttonsFile` loads the button list from a JSON file.
+- Grid panes accept `width: "third"`.
+
+### Changed
+
+- Auto terminal detection on macOS; quieter services probes.
+
+### Fixed
+
+- Profile-carried theme is applied before the activation re-render.
+- `pinax-api.d.ts`: `PaneConfig.width` accepts `third`.
+
 ## [0.1.7] - 2026-07-25
 
 Review-scorecard cleanup; no user-facing changes.
