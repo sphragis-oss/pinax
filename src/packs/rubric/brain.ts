@@ -1,6 +1,7 @@
 import { Notice, TFile, TFolder } from "obsidian";
 import type { WidgetContext, WidgetSpec } from "../../core/types";
 import { placeholderEl } from "../../core/ui";
+import { nodeRequire, type NodeFs, type NodeOs, type NodePath } from "../../core/platform";
 
 interface GraphNode { id: string; label?: string; community?: number; source_file?: string; }
 interface GraphLink { source?: unknown; target?: unknown; }
@@ -129,6 +130,38 @@ function orbAngle(i: number, n: number): number {
   return n === 1 ? center : center - span / 2 + (i / (n - 1)) * span;
 }
 
+type AgentState = "idle" | "working" | "waiting";
+interface AgentSummary { state: AgentState; sessions: number; tool: string; }
+
+const STALE_S = 12 * 3600;
+const WORKING_STALE_S = 30 * 60;
+const STATE_ORDER: AgentState[] = ["idle", "working", "waiting"];
+
+// one json per session from an agent hook; waiting outranks working outranks idle
+function readAgentState(dir: string): AgentSummary | null {
+  const fs = nodeRequire<NodeFs>("fs");
+  const path = nodeRequire<NodePath>("path");
+  const home = nodeRequire<NodeOs>("os")?.homedir() ?? "";
+  if (!fs || !path) return null;
+  const abs = dir.startsWith("~/") ? path.join(home, dir.slice(2)) : dir;
+  if (!fs.existsSync(abs)) return { state: "idle", sessions: 0, tool: "" };
+  const now = Date.now() / 1000;
+  const sum: AgentSummary = { state: "idle", sessions: 0, tool: "" };
+  for (const e of fs.readdirSync(abs, { withFileTypes: true })) {
+    if (!e.isFile() || !e.name.endsWith(".json")) continue;
+    let rec: { state?: unknown; tool?: unknown; ts?: unknown };
+    try { rec = JSON.parse(fs.readFileSync(path.join(abs, e.name), "utf8")) as typeof rec; } catch { continue; }
+    const ts = typeof rec.ts === "number" ? rec.ts : 0;
+    if (now - ts > STALE_S) continue;
+    let st: AgentState = rec.state === "working" || rec.state === "waiting" ? rec.state : "idle";
+    if (st === "working" && now - ts > WORKING_STALE_S) st = "idle";
+    sum.sessions++;
+    if (STATE_ORDER.indexOf(st) > STATE_ORDER.indexOf(sum.state)) sum.state = st;
+    if (st === "working" && typeof rec.tool === "string" && rec.tool !== "") sum.tool = rec.tool;
+  }
+  return sum;
+}
+
 export const brainWidget: WidgetSpec = {
   async render(el, ctx): Promise<void | (() => void)> {
     const pane = ctx.pane;
@@ -137,6 +170,7 @@ export const brainWidget: WidgetSpec = {
     const ringFolder = typeof pane.ringFolder === "string" ? pane.ringFolder : "";
     const heading = typeof pane.heading === "string" ? pane.heading : "";
     const subtitle = typeof pane.subtitle === "string" ? pane.subtitle : "";
+    const stateDir = typeof pane.stateDir === "string" ? pane.stateDir : "";
 
     let graph: GraphJson;
     try {
@@ -178,6 +212,22 @@ export const brainWidget: WidgetSpec = {
       const head = wrap.createDiv({ cls: "px-brain__head" });
       head.createDiv({ text: heading, cls: "px-brain__title" });
       if (subtitle !== "") head.createDiv({ text: subtitle, cls: "px-brain__subtitle" });
+    }
+    let agent: AgentSummary = { state: "idle", sessions: 0, tool: "" };
+    let refreshState = (): void => {};
+    if (stateDir !== "") {
+      const bar = wrap.createDiv({ cls: "px-brain__state" });
+      const chips = new Map(STATE_ORDER.map((s) => [s, bar.createSpan({ text: s, cls: "px-brain__chip" })]));
+      const detail = bar.createSpan({ cls: "px-brain__state-detail" });
+      refreshState = (): void => {
+        const next = readAgentState(stateDir);
+        if (!next) { bar.hide(); return; }
+        agent = next;
+        for (const [s, chip] of chips) chip.toggleClass("px-brain__chip--on", s === agent.state);
+        const n = `${agent.sessions} session${agent.sessions === 1 ? "" : "s"}`;
+        detail.setText(agent.tool !== "" ? `${n} · ${agent.tool}` : n);
+      };
+      refreshState();
     }
     const canvas = wrap.createEl("canvas", { cls: "px-brain__canvas" });
     const tip = wrap.createDiv({ cls: "px-brain__tip" });
@@ -237,7 +287,9 @@ export const brainWidget: WidgetSpec = {
 
       const [ar, ag, ab] = accentRgb(wrap);
       const glow = g.createRadialGradient(cx, cy, 0, cx, cy, R * 1.05);
-      glow.addColorStop(0, `rgba(${ar}, ${ag}, ${ab}, 0.07)`);
+      const glowA = agent.state === "working" ? 0.14
+        : agent.state === "waiting" && !reduceMotion ? 0.07 + 0.09 * (0.5 + 0.5 * Math.sin(now * 3)) : 0.07;
+      glow.addColorStop(0, `rgba(${ar}, ${ag}, ${ab}, ${glowA})`);
       glow.addColorStop(1, "rgba(0, 0, 0, 0)");
       g.fillStyle = glow;
       g.fillRect(cx - R * 1.1, cy - R * 1.1, R * 2.2, R * 2.2);
@@ -302,9 +354,11 @@ export const brainWidget: WidgetSpec = {
       }
     };
 
+    // working spins the cloud faster; integrate so the speed change does not jump the angle
     const loop = (t: number): void => {
+      const dt = now === 0 ? 0 : Math.min(0.1, t / 1000 - now);
       now = t / 1000;
-      angle = now * 0.012;
+      angle += dt * (agent.state === "working" ? 0.08 : 0.012);
       draw();
       raf = window.requestAnimationFrame(loop);
     };
@@ -359,6 +413,8 @@ export const brainWidget: WidgetSpec = {
       else new Notice(`Pinax: open ${openPath} manually.`);
     });
 
-    return () => { window.cancelAnimationFrame(raf); ro.disconnect(); };
+    const poll = stateDir !== "" ? window.setInterval(() => { refreshState(); if (reduceMotion) draw(); }, 2000) : 0;
+
+    return () => { window.cancelAnimationFrame(raf); ro.disconnect(); window.clearInterval(poll); };
   },
 };

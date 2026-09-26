@@ -2784,6 +2784,35 @@ textarea.px-form-input { min-height: 70px; resize: vertical; }
   color: var(--comment);
 }
 .px-brain__ring { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.px-brain__state {
+  position: absolute;
+  bottom: calc(var(--sp-sm) + 26px);
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--sp-xs);
+  z-index: 2;
+  pointer-events: none;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.px-brain__chip {
+  padding: 2px 10px;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm);
+  color: var(--comment);
+  background: color-mix(in srgb, var(--card-bg) 70%, transparent);
+}
+.px-brain__chip--on {
+  color: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--glow-strong);
+}
+.px-brain__state-detail { margin-left: var(--sp-sm); color: var(--comment); }
 .px-brain__orb {
   position: absolute;
   transform: translate(-50%, -50%);
