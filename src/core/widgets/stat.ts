@@ -1,6 +1,6 @@
 import type { NoteRecord, WidgetContext, WidgetSpec } from "../types";
 import { loadRecords, sourceLabel, RecordSource } from "../source";
-import { recordDay, localDay } from "./record-date";
+import { recordDay, daySeries, windowDelta } from "./record-date";
 import { emptyEl } from "../ui";
 
 type Agg = "count" | "sum" | "avg" | "min" | "max";
@@ -83,13 +83,14 @@ export const stat: WidgetSpec = {
         if (!Number.isFinite(inc)) continue;
         perDay.set(day, (perDay.get(day) ?? 0) + inc);
       }
-      const points: number[] = [];
       const today = new Date();
-      for (let i = days - 1; i >= 0; i--) {
-        const d = new Date(today);
-        d.setDate(d.getDate() - i);
-        points.push(perDay.get(localDay(d)) ?? 0);
+      if (ctx.pane.delta === true) {
+        const d = windowDelta(perDay, days, today);
+        const dir = d > 0 ? "up" : d < 0 ? "down" : "flat";
+        const arrow = d > 0 ? "▲" : d < 0 ? "▼" : "•";
+        box.createDiv({ text: `${arrow} ${d > 0 ? "+" : ""}${fmt(d)} · ${days}d`, cls: `px-stat-delta px-stat-delta--${dir}` });
       }
+      const points = daySeries(perDay, days, today);
       if (points.some((p) => p > 0)) sparkline(box, points);
     }
   },

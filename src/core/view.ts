@@ -2,7 +2,7 @@ import { ItemView, WorkspaceLeaf } from "obsidian";
 import type { PinaxHost } from "./host";
 import type { PaneConfig, TrustGate, WidgetCleanup } from "./types";
 import { isTrusted, gateLabel } from "./trust";
-import { currentTheme, openThemePicker, allThemes, getThemeId, setThemeId } from "./themes";
+import { currentTheme, openThemePicker, allThemes, setThemeId } from "./themes";
 import { placeholderEl, errorEl } from "./ui";
 
 export const PINAX_VIEW_TYPE = "pinax-view";
@@ -95,7 +95,7 @@ export class PinaxView extends ItemView {
     root.addClass("cc-root", "px-root");
     if (this.app.loadLocalStorage("cc-density") === "compact") root.addClass("cc-density-compact");
     else root.removeClass("cc-density-compact");
-    root.setAttribute("data-cc-theme", getThemeId(this.app));
+    root.setAttribute("data-cc-theme", currentTheme(this.app).id);
 
     (this.leaf as unknown as { updateHeader?: () => void }).updateHeader?.();
 

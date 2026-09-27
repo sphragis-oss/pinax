@@ -36,7 +36,7 @@ Always emit `"schemaVersion": 1` (omitting it means 1; future Pinax versions use
 }
 ```
 
-`layout: "zones"` renders a command-center page: narrow `left`/`right` rails around a dominant `center` column, plus an optional full-width `bottom` row (a normal two-column grid). Rails stack their panes vertically and ignore pane `width`; `center` is required, the rest are optional. On narrow windows the zones collapse to one column with center first. The bundled `rubric` profile is the reference example.
+`layout: "zones"` renders a command-center page: narrow `left`/`right` rails around a dominant `center` column, plus an optional full-width `bottom` row (a normal two-column grid). Rails stack their panes vertically and ignore pane `width`; `center` is required, the rest are optional. On narrow windows the zones collapse to one column with center first. The bundled `rubric` profile is the reference example; `hud` is the same page with a vitals rail of `stat` panes on the left and the clock on the right.
 
 A profile may also carry a top-level `"theme": "<id>"` (any id from the in-app theme picker). It is applied when the profile is activated; manual theme switches still win afterwards.
 
@@ -204,7 +204,7 @@ With the **write** toggle on, cards become draggable: dropping a card on another
 
 ### 10. `stat` - one number, optionally with a sparkline
 
-Aggregates notes into a single figure. `agg`: `count` (default), or `sum`/`avg`/`min`/`max` of a numeric frontmatter `field` (required for those). `sparkline: true` adds a per-day trend over `days` (default 30), bucketed like `heatmap`.
+Aggregates notes into a single figure. `agg`: `count` (default), or `sum`/`avg`/`min`/`max` of a numeric frontmatter `field` (required for those). `sparkline: true` adds a per-day trend over `days` (default 30), bucketed like `heatmap`; `delta: true` adds the change of that window against the one before it (`▲ +5 · 14d`).
 
 ```json
 { "type": "stat", "title": "ENTRIES", "source": { "folder": "journal" },

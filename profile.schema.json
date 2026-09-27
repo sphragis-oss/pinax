@@ -421,6 +421,7 @@
           }
         },
         "sparkline": { "type": "boolean", "description": "Show a per-day trend line. Default: false" },
+        "delta": { "type": "boolean", "description": "With sparkline: show the change of the last `days` window against the window before it. Default: false" },
         "days": { "type": "integer", "minimum": 7, "maximum": 365, "description": "Sparkline window in days. Default: 30" },
         "dateField": { "type": "string", "description": "Frontmatter field holding the note's date. Default: YYYY-MM-DD in the filename, else file mtime" },
         "recursive": { "type": "boolean", "description": "Also read notes in subfolders. Default: false" }

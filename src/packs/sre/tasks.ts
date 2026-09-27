@@ -1,5 +1,6 @@
 import { Notice, TFile, TFolder } from "obsidian";
 import type { WidgetContext, WidgetSpec } from "../../core/types";
+import { ageDays, ageLabel, fileDay, selectTasks, type SelectableTask } from "./tasks-select";
 
 interface DailyItem {
   text: string;
@@ -9,10 +10,9 @@ interface DailyItem {
   hasCheckbox: boolean;
 }
 
-interface TaskItem extends DailyItem {
+interface TaskItem extends DailyItem, SelectableTask {
   source: TFile;
   sourceLabel: string;
-  groupKey: string;
 }
 
 const DEFAULT_FOLDERS = ["raw/daily", "projects"];
@@ -62,23 +62,14 @@ function collectDailyItems(text: string): DailyItem[] {
   return items;
 }
 
-function deriveSourceLabel(file: TFile, dailyFolders: string[]): string {
-  const p = file.path;
-  for (const daily of dailyFolders) {
-    if (p.startsWith(daily + "/")) return file.basename;
-  }
-  const parts = p.split("/").slice(0, -1);
-  return parts.slice(1).join("/") || p;
+function isDailyFile(file: TFile, dailyFolders: string[]): boolean {
+  return dailyFolders.some((d) => file.path.startsWith(d + "/"));
 }
 
-function deriveGroupKey(file: TFile, dailyFolders: string[]): string {
-  const p = file.path;
-  for (const daily of dailyFolders) {
-    if (p.startsWith(daily + "/")) return "daily";
-  }
-  const parts = p.split("/");
-  if (parts.length >= 3) return parts[1] + "/" + parts[2];
-  return "other";
+function deriveSourceLabel(file: TFile, daily: boolean): string {
+  if (daily) return file.basename;
+  const parts = file.path.split("/").slice(0, -1);
+  return parts.slice(1).join("/") || file.path;
 }
 
 async function walkForTasks(ctx: WidgetContext, folder: TFolder, exclude: string[], dailyFolders: string[], out: TaskItem[]): Promise<void> {
@@ -89,10 +80,11 @@ async function walkForTasks(ctx: WidgetContext, folder: TFolder, exclude: string
       try { text = await ctx.app.vault.read(child); } catch { continue; }
       const fileItems = collectDailyItems(text);
       if (fileItems.length === 0) continue;
-      const sourceLabel = deriveSourceLabel(child, dailyFolders);
-      const groupKey = deriveGroupKey(child, dailyFolders);
+      const isDaily = isDailyFile(child, dailyFolders);
+      const sourceLabel = deriveSourceLabel(child, isDaily);
+      const day = fileDay(child.name, child.stat.mtime);
       for (const fi of fileItems) {
-        out.push({ ...fi, source: child, sourceLabel, groupKey });
+        out.push({ ...fi, source: child, sourceLabel, isDaily, day, path: child.path });
       }
     } else if (child instanceof TFolder) {
       await walkForTasks(ctx, child, exclude, dailyFolders, out);
@@ -125,10 +117,38 @@ async function toggleTask(ctx: WidgetContext, file: TFile, item: TaskItem): Prom
   ctx.refresh();
 }
 
+function renderList(parent: HTMLElement, ctx: WidgetContext, items: TaskItem[], today: Date): void {
+  const list = parent.createEl("ul", { cls: "cc-task-list" });
+  for (const it of items) {
+    const li = list.createEl("li", { cls: "cc-task" + (it.hasCheckbox ? "" : " cc-task-plain") });
+    const box = li.createSpan({ text: it.hasCheckbox ? "[ ]" : "·", cls: "cc-task-box" });
+    if (it.hasCheckbox) {
+      box.classList.add("cc-clickable");
+      box.title = "Mark done";
+      box.onclick = () => { void toggleTask(ctx, it.source, it); };
+    }
+    const body = li.createDiv({ cls: "cc-task-body" });
+    const textEl = body.createSpan({ text: it.text, cls: "cc-task-text cc-clickable" });
+    textEl.title = `Open ${it.source.path}`;
+    textEl.onclick = () => ctx.openNote(it.source.path);
+    const meta = body.createDiv({ cls: "cc-task-meta" });
+    meta.createSpan({ text: it.sourceLabel, cls: "cc-task-source" });
+    meta.createSpan({ text: ageLabel(ageDays(it.day, today)), cls: "cc-task-age" });
+  }
+}
+
+function renderFold(parent: HTMLElement, ctx: WidgetContext, label: string, items: TaskItem[], today: Date): void {
+  const fold = parent.createEl("details", { cls: "cc-task-more" });
+  fold.createEl("summary", { text: label });
+  renderList(fold, ctx, items, today);
+}
+
 export const tasksWidget: WidgetSpec = {
   async render(el: HTMLElement, ctx: WidgetContext): Promise<void> {
     const folders = Array.isArray(ctx.pane.folders) ? (ctx.pane.folders as string[]) : DEFAULT_FOLDERS;
     const exclude = Array.isArray(ctx.pane.exclude) ? (ctx.pane.exclude as string[]) : DEFAULT_EXCLUDE;
+    const limit = Math.max(1, Number(ctx.pane.limit) || 8);
+    const staleDays = Math.max(1, Number(ctx.pane.staleDays) || 30);
     const dailyFolders = folders.filter((f) => f.toLowerCase().includes("daily"));
 
     const tasks: TaskItem[] = [];
@@ -136,50 +156,18 @@ export const tasksWidget: WidgetSpec = {
       const folder = ctx.app.vault.getAbstractFileByPath(fp);
       if (folder instanceof TFolder) await walkForTasks(ctx, folder, exclude, dailyFolders, tasks);
     }
-    if (tasks.length === 0) {
+    const today = new Date();
+    const { fresh, stale } = selectTasks(tasks, today, staleDays);
+    if (fresh.length === 0 && stale.length === 0) {
       el.createDiv({ text: `No open tasks in ${folders.join("/ or ")}/.`, cls: "cc-empty" });
       return;
     }
 
-    const openCount = tasks.filter((t) => !t.done).length;
-    const checkboxCount = tasks.filter((t) => t.hasCheckbox).length;
     const meta = el.createDiv({ cls: "cc-meta" });
-    meta.createSpan({ text: `${openCount} open · ${checkboxCount} toggleable · ${tasks.length} total`, cls: "cc-muted" });
+    meta.createSpan({ text: `${fresh.length} open` + (stale.length > 0 ? ` · ${stale.length} stale` : ""), cls: "cc-muted" });
 
-    const grouped = new Map<string, TaskItem[]>();
-    for (const t of tasks) {
-      const list = grouped.get(t.groupKey) ?? [];
-      list.push(t);
-      grouped.set(t.groupKey, list);
-    }
-
-    const groupOrder = Array.from(grouped.keys()).sort((a, b) => {
-      const rank = (k: string) => (k === "daily" ? 0 : k.startsWith("personal/") ? 1 : k.startsWith("work/") ? 2 : 3);
-      const ra = rank(a), rb = rank(b);
-      if (ra !== rb) return ra - rb;
-      return a.localeCompare(b);
-    });
-
-    for (const groupKey of groupOrder) {
-      const items = grouped.get(groupKey) ?? [];
-      const head = el.createDiv({ cls: "cc-proj-group-head" });
-      head.createSpan({ text: groupKey, cls: "cc-proj-group-name" });
-      head.createSpan({ text: `${items.filter((i) => !i.done).length} open`, cls: "cc-muted" });
-
-      const list = el.createEl("ul", { cls: "cc-task-list" });
-      for (const it of items) {
-        const li = list.createEl("li", { cls: "cc-task" + (it.done ? " cc-task-done" : "") });
-        const box = li.createSpan({ text: it.done ? "[x]" : "[ ]", cls: "cc-task-box" });
-        if (it.hasCheckbox) {
-          box.classList.add("cc-clickable");
-          box.title = "Toggle";
-          box.onclick = () => { void toggleTask(ctx, it.source, it); };
-        }
-        const textEl = li.createSpan({ text: it.text, cls: "cc-task-text cc-clickable" });
-        textEl.title = `Open ${it.source.path}`;
-        textEl.onclick = () => ctx.openNote(it.source.path);
-        li.createSpan({ text: it.sourceLabel, cls: "cc-task-section" });
-      }
-    }
+    renderList(el, ctx, fresh.slice(0, limit), today);
+    if (fresh.length > limit) renderFold(el, ctx, `${fresh.length - limit} more`, fresh.slice(limit), today);
+    if (stale.length > 0) renderFold(el, ctx, `stale · ${stale.length} · older than ${staleDays}d`, stale, today);
   },
 };

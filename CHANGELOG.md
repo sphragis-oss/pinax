@@ -6,6 +6,16 @@ All notable changes to pinax are documented here. The format follows [Keep a Cha
 
 ### Added
 
+- `ember` theme (warm near-black, terracotta accent), now the default.
+- `hud` bundled profile: the `rubric` page with a vitals rail of `stat` panes (sessions, scans, daily notes) on the left and the clock on the right.
+- `stat`: `delta: true` (with `sparkline`) shows the change of the last `days` window against the window before it.
+- `rubric.clock`: seconds render in their own span so a theme can size them separately.
+
+### Changed
+
+- The dashboard chrome is now the HUD look for every theme and layout: no pane boxes, hairline section headings in 9px mono, display type for the clock and `stat` values, a full-height center stage in `zones`, launch deck buttons as hairline text rows, task rows that stack in rails, a still starfield and a one-time staggered boot reveal (`prefers-reduced-motion` disables it). Themes are palettes only. Bundles the OFL fonts Big Shoulders Display and Martian Mono as data URIs (about 80 KB), see `docs/licenses/`.
+- `sre.tasks` redesigned as a directives list. Only open checkboxes count as tasks; plain bullets are read from the newest daily note only, so old intents no longer pile up. Newest first, no per-project group headers: each row is a two-line clamped text with a source label and an age (`today`, `7d`, `3w`, `2mo`). The first `limit` rows show (default 8), the rest fold under "N more", and anything older than `staleDays` (default 30) folds under "stale". Done items are no longer listed.
+
 - `rubric.brain`: optional `stateDir` pane setting. Reads one JSON file per agent session (`state`, `tool`, `ts`) and shows Idle / Working / Waiting chips with a session count; the cloud spins faster while working and the glow pulses while waiting. Stale sessions (over 12 hours, or working with no update for 30 minutes) are ignored or treated as idle.
 
 ## [0.1.9] - 2026-08-23

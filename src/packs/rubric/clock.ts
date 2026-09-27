@@ -17,6 +17,8 @@ export const clockWidget: WidgetSpec = {
     const box = el.createDiv({ cls: "px-clock" });
     const meta = box.createDiv({ cls: "px-clock__meta" });
     const time = box.createDiv({ cls: "px-clock__time" });
+    const hm = time.createSpan();
+    const sec = time.createSpan({ cls: "px-clock__sec" });
     const zone = box.createDiv({ cls: "px-clock__zone" });
     const label = typeof ctx.pane.label === "string" ? ctx.pane.label : Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -26,7 +28,8 @@ export const clockWidget: WidgetSpec = {
       const mm = String(now.getMinutes()).padStart(2, "0");
       const ss = String(now.getSeconds()).padStart(2, "0");
       meta.setText(`Wk${isoWeek(now)} | ${MONTHS[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()} (${DAYS[now.getDay()]})`);
-      time.setText(`${hh}:${mm}:${ss}`);
+      hm.setText(`${hh}:${mm}`);
+      sec.setText(`:${ss}`);
       zone.setText(label);
     };
     tick();
