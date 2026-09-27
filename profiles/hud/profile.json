@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 1,
+  "name": "HUD",
+  "layout": "zones",
+  "theme": "ember",
+  "zones": {
+    "left": [
+      {
+        "type": "stat",
+        "frame": false,
+        "source": {
+          "folder": "raw/sessions"
+        },
+        "recursive": true,
+        "agg": "count",
+        "label": "SESSIONS",
+        "sparkline": true,
+        "delta": true,
+        "days": 14
+      },
+      {
+        "type": "stat",
+        "frame": false,
+        "source": {
+          "folder": "raw/scans"
+        },
+        "recursive": true,
+        "agg": "count",
+        "label": "RADAR SCANS",
+        "sparkline": true,
+        "delta": true,
+        "days": 14
+      },
+      {
+        "type": "stat",
+        "frame": false,
+        "source": {
+          "folder": "raw/daily"
+        },
+        "recursive": true,
+        "agg": "count",
+        "label": "DAILY NOTES",
+        "sparkline": true,
+        "delta": true,
+        "days": 14
+      },
+      {
+        "type": "custom",
+        "widget": "sre.tasks",
+        "title": "▤ OPEN TASKS",
+        "config": {
+          "folders": [
+            "raw/daily",
+            "projects"
+          ],
+          "exclude": [
+            "projects/personal/claude-os"
+          ]
+        }
+      }
+    ],
+    "center": [
+      {
+        "type": "custom",
+        "widget": "rubric.brain",
+        "frame": false,
+        "config": {
+          "heading": "CLAUDEVAULT Agentic OS",
+          "subtitle": "Nick | SREKubeCraft",
+          "folder": "graphify-out/graph.json",
+          "note": "graphify-out/graph.html",
+          "ringFolder": "raw/artifacts"
+        }
+      }
+    ],
+    "right": [
+      {
+        "type": "custom",
+        "widget": "rubric.clock",
+        "frame": false
+      },
+      {
+        "type": "custom",
+        "widget": "rubric.prs",
+        "title": "⇅ OPEN PRS · NON-WORKABLE"
+      },
+      {
+        "type": "command-buttons",
+        "title": "⚡ LAUNCH DECK",
+        "buttonsFile": "graphify-out/skill-deck.json",
+        "buttons": [
+          {
+            "label": "Second Brain",
+            "command": "open graphify-out/graph.html",
+            "icon": "orbit",
+            "terminal": true,
+            "color": "accent"
+          },
+          {
+            "label": "Daily Note",
+            "command": "claude /daily-note",
+            "icon": "calendar",
+            "terminal": true
+          },
+          {
+            "label": "Graphify",
+            "command": "claude \"/graphify\"",
+            "icon": "share-2",
+            "terminal": true
+          },
+          {
+            "label": "Vault Recall",
+            "command": "claude \"/vault-recall\"",
+            "icon": "brain",
+            "terminal": true
+          },
+          {
+            "label": "CNCF Contribute",
+            "command": "claude \"/cncf-contribute\"",
+            "icon": "git-fork",
+            "terminal": true
+          },
+          {
+            "label": "Vault Optimizer",
+            "command": "claude \"/vault-optimizer\"",
+            "icon": "sparkles",
+            "terminal": true
+          },
+          {
+            "label": "Claude API",
+            "command": "claude \"/claude-api\"",
+            "icon": "book-open",
+            "terminal": true
+          },
+          {
+            "label": "Run",
+            "command": "claude \"/run\"",
+            "icon": "play",
+            "terminal": true
+          },
+          {
+            "label": "Rebuild Graph",
+            "command": "claude \"/graphify . --update\"",
+            "icon": "refresh-cw",
+            "terminal": true
+          },
+          {
+            "label": "Reindex Recall",
+            "command": "claude \"/vault-recall index --update\"",
+            "icon": "database",
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "type": "custom",
+        "widget": "sre.schedule",
+        "title": "⏱ ROUTINES"
+      }
+    ],
+    "bottom": [
+      {
+        "type": "custom",
+        "widget": "sre.scan",
+        "title": "⬢ CNCF / PLATFORM RADAR",
+        "width": "third",
+        "config": {
+          "folder": "raw/scans",
+          "rowFilter": true
+        }
+      },
+      {
+        "type": "custom",
+        "widget": "sre.projects",
+        "title": "▣ PROJECTS",
+        "width": "third",
+        "config": {
+          "folder": "projects"
+        }
+      },
+      {
+        "type": "heatmap",
+        "title": "◧ SESSION ACTIVITY",
+        "recursive": true,
+        "weeks": 20,
+        "source": {
+          "folder": "raw/sessions"
+        },
+        "width": "third"
+      }
+    ]
+  }
+}

@@ -7,6 +7,7 @@ import sreProfile from "../../profiles/sre/profile.json";
 import readingProfile from "../../profiles/reading/profile.json";
 import helmProfile from "../../profiles/helm/profile.json";
 import rubricProfile from "../../profiles/rubric/profile.json";
+import hudProfile from "../../profiles/hud/profile.json";
 
 export function installPacks(registry: WidgetRegistry): void {
   installSrePack(registry);
@@ -19,4 +20,5 @@ export const bundledProfiles: Record<string, Profile> = {
   reading: readingProfile as unknown as Profile,
   helm: helmProfile as unknown as Profile,
   rubric: rubricProfile as unknown as Profile,
+  hud: hudProfile as unknown as Profile,
 };

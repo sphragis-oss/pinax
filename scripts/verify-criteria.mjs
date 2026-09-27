@@ -156,7 +156,8 @@ console.log("\n[2] sre profile reproduces the seed panes + skill row");
   check("release rows render", rootEl.querySelectorAll(".cc-release-row").length === 2);
   check("trending repo rows render", rootEl.querySelectorAll(".cc-repo-row").length === 3);
   check("projects grouped with scope labels", !!rootEl.querySelector(".cc-proj-scope-work"));
-  check("open tasks render from daily note", rootEl.querySelectorAll(".cc-task").length === 2);
+  check("open tasks render from daily note, done ones are not listed",
+    rootEl.querySelectorAll(".cc-task").length === 1 && rootEl.querySelector(".cc-task-text")?.textContent === "review pinax");
   check("skill row gated OFF by default -> placeholder",
     !rootEl.querySelector(".cc-skill-row") && !!rootEl.querySelector(".px-bare .px-placeholder"));
   await grantTrust(plugin, "sre", ["command"]);

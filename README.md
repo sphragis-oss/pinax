@@ -44,7 +44,7 @@ cd <vault>/.obsidian/plugins/pinax
 npm install && npm run build
 ```
 
-Enable community plugins in Obsidian, toggle **Pinax** on, then run **Pinax: Open dashboard** from the command palette or click the ribbon icon. On first load the bundled `sre`, `helm`, `reading`, and `rubric` profiles are materialized under `profiles/`; pick one in Settings → Pinax.
+Enable community plugins in Obsidian, toggle **Pinax** on, then run **Pinax: Open dashboard** from the command palette or click the ribbon icon. On first load the bundled `sre`, `helm`, `reading`, `rubric`, and `hud` profiles are materialized under `profiles/`; pick one in Settings → Pinax.
 
 Optional companion: the **Terminal** community plugin (`polyipseity/obsidian-terminal`) so command buttons open an integrated terminal pane. Prefer a specific app instead (iTerm2, Ghostty, kitty, Windows Terminal, ...)? Pick it under Settings → Pinax → **Preferred terminal**; the choice is stored per device, and "Copy only" skips the terminal entirely.
 
@@ -56,6 +56,7 @@ Optional companion: the **Terminal** community plugin (`polyipseity/obsidian-ter
 | `helm` | Full multi-tab parity: hero, alerts, ops, standup, reports, system | same + `~/.claude` session logs, local service probes |
 | `reading` | Domain-agnosticism | a plain `reading/books/` folder |
 | `rubric` | The `zones` layout: left/right rails around a center knowledge-graph point cloud (`rubric.brain`), clock, artifacts ring | `graphify-out/graph.json`, `raw/artifacts/`, `raw/scans/*`, `projects/` |
+| `hud` | The same page as `rubric` with a vitals rail (`stat` + `sparkline` + `delta`) on the left and the clock on the right | same as `rubric`, plus `raw/sessions/`, `raw/daily/` |
 
 The `helm` profile's service probes and usage panel are desktop-only and sit behind the web/command toggles; on mobile or while gated they degrade to placeholders. Probe overrides (`FIRECRAWL_URL`, `VAULT_RECALL_MODEL`) are read from the app environment: a GUI-launched Obsidian does not inherit shell exports, so set them via `launchctl setenv` (macOS) or your desktop session environment, or rely on the defaults.
 

@@ -4,6 +4,7 @@ export interface ThemeDef { id: string; label: string; accent: string; bg: strin
 
 export const THEME_GROUPS: { group: string; themes: ThemeDef[] }[] = [
   { group: "Yours", themes: [
+    { id: "ember",       label: "Ember",        accent: "#d97757", bg: "#14110d" },
     { id: "rubric",      label: "Rubric",       accent: "#ff7a2f", bg: "#0e0b08" },
     { id: "vesper",      label: "Vesper",       accent: "#ffc799", bg: "#101010" },
     { id: "tokyo-night", label: "Tokyo Night",  accent: "#7aa2f7", bg: "#1a1b26" },
@@ -30,7 +31,7 @@ export const THEME_GROUPS: { group: string; themes: ThemeDef[] }[] = [
   ] },
 ];
 
-export const DEFAULT_THEME = "vesper";
+export const DEFAULT_THEME = "ember";
 export const THEME_STORAGE_KEY = "cc-theme";
 
 export function allThemes(): ThemeDef[] { return THEME_GROUPS.flatMap((g) => g.themes); }
